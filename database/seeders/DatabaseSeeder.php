@@ -12,14 +12,27 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * Dirancang untuk dijalankan di database kosong:
+     *   php artisan migrate:fresh --seed
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Data peminjaman & stok saling terkait, jadi jangan di-seed dua kali.
+        if (User::where('email', UserSeeder::ADMIN_EMAIL)->exists()) {
+            $this->command?->warn('Data seeder sudah ada. Jalankan "php artisan migrate:fresh --seed" untuk mengulang dari awal.');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            return;
+        }
+
+        // Urutan penting: tabel yang direferensikan harus terisi lebih dulu.
+        $this->call([
+            UserSeeder::class,
+            CategorySeeder::class,
+            ItemSeeder::class,
+            LoanSeeder::class,
+            ReturnLogSeeder::class,
+            ActivityLogSeeder::class,
         ]);
     }
 }
