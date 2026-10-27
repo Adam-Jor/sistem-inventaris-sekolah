@@ -29,6 +29,7 @@ class ReturnLog extends Model
 
     public function loan(): BelongsTo
     {
-        return $this->belongsTo(Loan::class);
+        // withTrashed: catatan pengembalian tetap terbaca walau peminjamannya di-soft-delete.
+        return $this->belongsTo(Loan::class)->withTrashed();
     }
 }

@@ -39,7 +39,8 @@ class Loan extends Model
 
     public function item(): BelongsTo
     {
-        return $this->belongsTo(Item::class);
+        // withTrashed: riwayat tetap menampilkan barang yang sudah di-soft-delete.
+        return $this->belongsTo(Item::class)->withTrashed();
     }
 
     public function returnLog(): HasOne
@@ -48,7 +49,7 @@ class Loan extends Model
     }
 
     /**
-     * Scope untuk transaksi peminjaman yang menunggu persetujuan (PRD 5.4)
+     * Scope untuk transaksi peminjaman yang menunggu persetujuan
      */
     public function scopeWaiting(Builder $query): Builder
     {
