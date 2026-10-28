@@ -16,6 +16,8 @@ class DashboardController extends Controller
      */
     public function index(Request $request): View
     {
+        Loan::syncOverdueStatuses();
+
         $user = $request->user();
 
         if ($user->isAdmin()) {

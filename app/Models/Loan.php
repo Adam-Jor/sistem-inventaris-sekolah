@@ -110,4 +110,15 @@ class Loan extends Model
         return $this->status === 'terlambat' ||
                ($this->status === 'dipinjam' && $this->due_date < now()->startOfDay());
     }
+
+    /**
+     * Tandai otomatis peminjaman berstatus 'dipinjam' yang sudah melewati due_date menjadi 'terlambat' (LOA-05).
+     */
+    public static function syncOverdueStatuses(): int
+    {
+        return static::query()
+            ->where('status', 'dipinjam')
+            ->whereDate('due_date', '<', now()->toDateString())
+            ->update(['status' => 'terlambat']);
+    }
 }
