@@ -18,6 +18,7 @@ class CategoryController extends Controller
     public function index(Request $request): View
     {
         $search = $request->string('search')->trim()->toString();
+        $perPage = $this->resolvePerPage($request);
 
         $categories = Category::query()
             ->withCount('items')
@@ -28,10 +29,10 @@ class CategoryController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
-        return view('categories.index', compact('categories', 'search'));
+        return view('categories.index', compact('categories', 'search', 'perPage'));
     }
 
     /**

@@ -13,6 +13,9 @@
 
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             <form method="GET" action="{{ route('categories.index') }}" class="d-flex align-items-center gap-2">
+                                @if (($perPage ?? 10) !== 10)
+                                    <input type="hidden" name="per_page" value="{{ $perPage }}">
+                                @endif
                                 <input
                                     type="text"
                                     name="search"
@@ -23,7 +26,7 @@
                                 >
                                 <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 px-3">Cari</button>
                                 @if ($search !== '')
-                                    <a href="{{ route('categories.index') }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
+                                    <a href="{{ route('categories.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
                                 @endif
                             </form>
 
@@ -130,11 +133,7 @@
                         </table>
                     </div>
 
-                    @if ($categories->hasPages())
-                        <div class="px-4 pt-3">
-                            {{ $categories->links() }}
-                        </div>
-                    @endif
+                    <x-table-pagination :paginator="$categories" />
                 </div>
             </div>
         </div>
