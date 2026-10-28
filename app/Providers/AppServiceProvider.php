@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Soft UI memakai Bootstrap 5, jadi tampilan pagination Laravel juga harus Bootstrap.
+        Paginator::useBootstrapFive();
     }
 }

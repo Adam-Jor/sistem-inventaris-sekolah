@@ -1,3 +1,92 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * CSS khusus aplikasi (di luar Soft UI Dashboard).
+ * Tailwind sudah dihapus karena bentrok dengan Bootstrap milik Soft UI.
+ */
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Modal ringan berbasis Alpine.js (lihat components/modal.blade.php) */
+.app-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1055;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.app-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(24, 24, 27, 0.5);
+}
+
+.app-modal-dialog {
+    position: relative;
+    width: 100%;
+}
+
+.app-modal-sm { max-width: 320px; }
+.app-modal-md { max-width: 500px; }
+.app-modal-lg { max-width: 800px; }
+
+/* Input password dengan tombol tampil/sembunyikan (lihat components/text-input.blade.php) */
+.password-input-wrapper .form-control {
+    padding-right: 2.75rem !important;
+    background-image: none !important;
+}
+
+/* Pastikan ikon Nucleo (.ni) di dalam .icon-shape flex tidak terdorong ke bawah */
+.icon-shape.d-flex .ni,
+.icon-shape.d-inline-flex .ni {
+    top: 0;
+}
+
+/* Optimasi tampilan mobile untuk halaman autentikasi (Login, Register, dll.) */
+@media (max-width: 767.98px) {
+    body.guest-layout {
+        background-color: #f8f9fa;
+    }
+
+    .guest-layout .auth-card {
+        background-color: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 10px 27px 0 rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .guest-layout .auth-card .card-header {
+        padding: 1.5rem 1.25rem 0.25rem;
+    }
+
+    .guest-layout .auth-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .guest-layout .auth-card .card-footer {
+        padding: 0 1.25rem 0.5rem;
+    }
+
+    /* Ukuran font 16px mencegah auto-zoom bawaan iOS/mobile saat input difokuskan */
+    .guest-layout .form-control {
+        font-size: 1rem;
+        min-height: 2.75rem;
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
+    }
+
+    .guest-layout .auth-submit-btn {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 374.98px) {
+    .guest-layout .navbar-brand {
+        font-size: 0.85rem;
+    }
+}
