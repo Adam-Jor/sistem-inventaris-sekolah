@@ -9,7 +9,7 @@
                         <p class="text-xs text-secondary mb-0">Detail barang yang akan dikembalikan</p>
                     </div>
                     <span class="badge badge-sm bg-gradient-{{ $loan->status === 'terlambat' ? 'danger' : 'info' }}">
-                        {{ $loan->status }}
+                        {{ ucfirst($loan->status) }}
                     </span>
                 </div>
 
@@ -27,7 +27,7 @@
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                             <span class="text-secondary">Jumlah Dipinjam</span>
-                            <span class="badge badge-sm bg-gradient-dark">{{ $loan->quantity }} unit</span>
+                            <span class="badge badge-sm bg-gradient-dark">{{ number_format($loan->quantity, 0, ',', '.') }} unit</span>
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                             <span class="text-secondary">Tanggal Pinjam</span>

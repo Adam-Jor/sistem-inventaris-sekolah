@@ -43,7 +43,7 @@
                                                 <span class="text-xs text-secondary">{{ $activeLoan->item?->code }}</span>
                                             </td>
                                             <td class="align-middle text-center">
-                                                <span class="text-xs font-weight-bold">{{ $activeLoan->quantity }} unit</span>
+                                                <span class="text-xs font-weight-bold">{{ number_format($activeLoan->quantity, 0, ',', '.') }} unit</span>
                                             </td>
                                             <td class="align-middle text-center">
                                                 <span class="text-xs font-weight-bold {{ $activeLoan->status === 'terlambat' ? 'text-danger' : 'text-secondary' }}">
@@ -52,7 +52,7 @@
                                             </td>
                                             <td class="align-middle text-center">
                                                 <span class="badge badge-sm bg-gradient-{{ $activeLoan->status === 'terlambat' ? 'danger' : 'info' }}">
-                                                    {{ $activeLoan->status }}
+                                                    {{ ucfirst($activeLoan->status) }}
                                                 </span>
                                             </td>
                                             <td class="align-middle text-end pe-4">
@@ -163,7 +163,7 @@
                                             </div>
                                         </td>
                                         <td class="align-middle text-center">
-                                            <span class="text-xs font-weight-bold text-dark">{{ $returnLog->loan?->quantity ?? 0 }} unit</span>
+                                            <span class="text-xs font-weight-bold text-dark">{{ number_format($returnLog->loan?->quantity ?? 0, 0, ',', '.') }} unit</span>
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="text-secondary text-xs font-weight-bold">
@@ -172,7 +172,7 @@
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="badge badge-sm bg-gradient-{{ $conditionBadge }}">
-                                                {{ $returnLog->condition_on_return }}
+                                                {{ ucwords($returnLog->condition_on_return) }}
                                             </span>
                                         </td>
                                         <td>

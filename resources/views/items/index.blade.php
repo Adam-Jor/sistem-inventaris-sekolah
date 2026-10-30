@@ -118,12 +118,12 @@
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="badge badge-sm bg-gradient-{{ $item->stock > 0 ? 'info' : 'secondary' }}">
-                                                {{ $item->stock }} unit
+                                                {{ number_format($item->stock, 0, ',', '.') }} unit
                                             </span>
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="badge badge-sm bg-gradient-{{ $conditionBadge }}">
-                                                {{ $item->condition }}
+                                                {{ ucwords($item->condition) }}
                                             </span>
                                         </td>
                                         <td class="align-middle text-end pe-4">
@@ -146,11 +146,11 @@
                                                     </button>
                                                 @else
                                                     @if ($item->isAvailable())
-                                                        <a href="{{ route('loans.create', ['item_id' => $item->id]) }}" class="btn btn-xs bg-gradient-info mb-0 px-3 py-1">
+                                                        <a href="{{ route('loans.create', ['item_id' => $item->id]) }}" class="btn btn-xs bg-gradient-primary mb-0 px-3 py-1">
                                                             Ajukan Peminjaman
                                                         </a>
                                                     @else
-                                                        <span class="badge badge-sm bg-secondary opacity-6">Tidak Tersedia</span>
+                                                        <span class="badge badge-sm bg-gradient-secondary">Tidak Tersedia</span>
                                                     @endif
                                                 @endif
                                             </div>

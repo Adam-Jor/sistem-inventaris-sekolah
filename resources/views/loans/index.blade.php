@@ -20,7 +20,7 @@
                         </div>
 
                         <div>
-                            <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-{{ $isAdmin ? 'primary' : 'info' }} mb-0">
+                            <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-primary mb-0">
                                 + Ajukan Peminjaman
                             </a>
                         </div>
@@ -124,7 +124,7 @@
                                         </td>
 
                                         <td class="align-middle text-center">
-                                            <span class="text-xs font-weight-bold text-dark">{{ $loan->quantity }} unit</span>
+                                            <span class="text-xs font-weight-bold text-dark">{{ number_format($loan->quantity, 0, ',', '.') }} unit</span>
                                         </td>
 
                                         <td class="align-middle text-center">
@@ -141,7 +141,7 @@
 
                                         <td class="align-middle text-center">
                                             <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">
-                                                {{ $loan->status }}
+                                                {{ ucfirst($loan->status) }}
                                             </span>
                                         </td>
 
@@ -273,7 +273,7 @@
                                                 {{ $hasFilters ? 'Tidak ada data peminjaman yang cocok dengan filter Anda.' : 'Belum ada data peminjaman.' }}
                                             </p>
                                             @if (! $hasFilters)
-                                                <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-{{ $isAdmin ? 'primary' : 'info' }} mb-0">
+                                                <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-primary mb-0">
                                                     + Ajukan Peminjaman Baru
                                                 </a>
                                             @endif

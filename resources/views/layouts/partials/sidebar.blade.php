@@ -1,191 +1,130 @@
 @php
     $authUser = auth()->user();
 
-    // Menu dibedakan per role. 'match' dipakai untuk menandai menu aktif (request()->routeIs()).
-    // 'icon' merujuk ke kunci SVG duotone ala Soft UI Dashboard 3.
+    // Daftar menu langsung ditampilkan seluruhnya tanpa pemisah seksi.
     if ($authUser->isAdmin()) {
-        $sections = [
-            ['title' => null, 'items' => [
-                ['label' => 'Dashboard', 'icon' => 'shop', 'route' => 'dashboard', 'match' => 'dashboard'],
-            ]],
-            ['title' => 'Master Data', 'items' => [
-                ['label' => 'Kategori', 'icon' => 'office', 'route' => 'categories.index', 'match' => 'categories.*'],
-                ['label' => 'Barang', 'icon' => 'box-3d', 'route' => 'items.index', 'match' => 'items.*'],
-            ]],
-            ['title' => 'Transaksi', 'items' => [
-                ['label' => 'Peminjaman', 'icon' => 'document', 'route' => 'loans.index', 'match' => 'loans.*'],
-                ['label' => 'Pengembalian', 'icon' => 'archive', 'route' => 'return-logs.index', 'match' => 'return-logs.*'],
-            ]],
-            ['title' => 'Sistem', 'items' => [
-                ['label' => 'Activity Log', 'icon' => 'History', 'route' => 'activity-logs.index', 'match' => 'activity-logs.*'],
-                ['label' => 'Manajemen User', 'icon' => 'users', 'route' => 'users.index', 'match' => 'users.*'],
-            ]],
+        $menuItems = [
+            ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'match' => 'dashboard'],
+            ['label' => 'Kategori', 'icon' => 'categories', 'route' => 'categories.index', 'match' => 'categories.*'],
+            ['label' => 'Barang', 'icon' => 'items', 'route' => 'items.index', 'match' => 'items.*'],
+            ['label' => 'Peminjaman', 'icon' => 'loans', 'route' => 'loans.index', 'match' => 'loans.*'],
+            ['label' => 'Pengembalian', 'icon' => 'returns', 'route' => 'return-logs.index', 'match' => 'return-logs.*'],
+            ['label' => 'Activity Log', 'icon' => 'activity-logs', 'route' => 'activity-logs.index', 'match' => 'activity-logs.*'],
+            ['label' => 'Manajemen User', 'icon' => 'users', 'route' => 'users.index', 'match' => 'users.*'],
+            ['label' => 'Profil', 'icon' => 'profile', 'route' => 'profile.edit', 'match' => 'profile.*'],
         ];
     } else {
-        $sections = [
-            ['title' => null, 'items' => [
-                ['label' => 'Dashboard', 'icon' => 'shop', 'route' => 'dashboard', 'match' => 'dashboard'],
-            ]],
-            ['title' => 'Peminjaman', 'items' => [
-                ['label' => 'Daftar Barang', 'icon' => 'box-3d', 'route' => 'items.index', 'match' => 'items.*'],
-                ['label' => 'Peminjaman Saya', 'icon' => 'document', 'route' => 'loans.index', 'match' => 'loans.*'],
-            ]],
+        $menuItems = [
+            ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'match' => 'dashboard'],
+            ['label' => 'Daftar Barang', 'icon' => 'items', 'route' => 'items.index', 'match' => 'items.*'],
+            ['label' => 'Peminjaman Saya', 'icon' => 'loans', 'route' => 'loans.index', 'match' => 'loans.*'],
+            ['label' => 'Profil', 'icon' => 'profile', 'route' => 'profile.edit', 'match' => 'profile.*'],
         ];
     }
-
-    $sections[] = ['title' => 'Akun', 'items' => [
-        ['label' => 'Profil', 'icon' => 'settings', 'route' => 'profile.edit', 'match' => 'profile.*'],
-    ]];
 @endphp
 
-<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3" id="sidenav-main">
-    <div class="sidenav-header">
+<aside class="sidenav app-sidenav navbar navbar-vertical navbar-expand-xs fixed-start bg-white" id="sidenav-main">
+    <div class="sidenav-header app-sidenav-header">
         {{-- id="iconSidenav" wajib ada: dipakai oleh soft-ui-dashboard.js saat sidebar dibuka di layar kecil --}}
         <i class="ni ni-fat-remove p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
 
-        <a class="navbar-brand m-0 d-flex align-items-center" href="{{ route('dashboard') }}">
-            <img src="{{ asset('assets/img/logo-ct-dark.png') }}" class="navbar-brand-img h-100" alt="Logo">
-            <span class="ms-2 font-weight-bold">{{ config('app.name') }}</span>
+        <a class="navbar-brand m-0 d-flex align-items-center gap-2" href="{{ route('dashboard') }}">
+            <img src="{{ asset('assets/img/logo-ct-dark.png') }}" class="navbar-brand-img" alt="Logo">
+            <span class="app-brand-text">{{ config('app.name') }}</span>
         </a>
     </div>
 
-    <hr class="horizontal dark mt-0">
-
-    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
+    <div class="app-sidenav-menu" id="sidenav-collapse-main">
         <ul class="navbar-nav">
-            @foreach ($sections as $section)
-                @if ($section['title'])
-                    <li class="nav-item mt-3">
-                        <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">{{ $section['title'] }}</h6>
-                    </li>
-                @endif
+            @foreach ($menuItems as $item)
+                @php $active = request()->routeIs($item['match']); @endphp
+                <li class="nav-item">
+                    <a class="nav-link app-nav-link {{ $active ? 'active' : '' }}" href="{{ route($item['route']) }}">
+                        @switch($item['icon'])
+                            @case('dashboard')
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+                                    <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+                                    <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+                                    <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+                                </svg>
+                                @break
 
-                @foreach ($section['items'] as $item)
-                    @php $active = request()->routeIs($item['match']); @endphp
-                    <li class="nav-item">
-                        <a class="nav-link {{ $active ? 'active' : '' }}" href="{{ route($item['route']) }}">
-                            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                                @switch($item['icon'])
-                                    @case('shop')
-                                        <svg width="12px" height="12px" viewBox="0 0 45 40" xmlns="http://www.w3.org/2000/svg">
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-1716.000000, -439.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(0.000000, 148.000000)">
-                                                            <path class="color-background opacity-6" d="M46.7199583,10.7414583 L40.8449583,0.949791667 C40.4909749,0.360605034 39.8540131,0 39.1666667,0 L7.83333333,0 C7.1459869,0 6.50902508,0.360605034 6.15504167,0.949791667 L0.280041667,10.7414583 C0.0969176761,11.0460037 -1.23209662e-05,11.3946378 -1.23209662e-05,11.75 C-0.00758042603,16.0663731 3.48367543,19.5725301 7.80004167,19.5833333 L7.81570833,19.5833333 C9.75003686,19.5882688 11.6168794,18.8726691 13.0522917,17.5760417 C16.0171492,20.2556967 20.5292675,20.2556967 23.494125,17.5760417 C26.4604562,20.2616016 30.9794188,20.2616016 33.94575,17.5760417 C36.2421905,19.6477597 39.5441143,20.1708521 42.3684437,18.9103691 C45.1927731,17.649886 47.0084685,14.8428276 47.0000295,11.75 C47.0000295,11.3946378 46.9030823,11.0460037 46.7199583,10.7414583 Z"></path>
-                                                            <path class="color-background" d="M39.198,22.4912623 C37.3776246,22.4928106 35.5817531,22.0149171 33.951625,21.0951667 L33.92225,21.1107282 C31.1430221,22.6838032 27.9255001,22.9318916 24.9844167,21.7998837 C24.4750389,21.605469 23.9777983,21.3722567 23.4960833,21.1018359 L23.4745417,21.1129513 C20.6961809,22.6871153 17.4786145,22.9344611 14.5386667,21.7998837 C14.029926,21.6054643 13.533337,21.3722507 13.0522917,21.1018359 C11.4250962,22.0190609 9.63246555,22.4947009 7.81570833,22.4912623 C7.16510551,22.4842162 6.51607673,22.4173045 5.875,22.2911849 L5.875,44.7220845 C5.875,45.9498589 6.7517757,46.9451667 7.83333333,46.9451667 L19.5833333,46.9451667 L19.5833333,33.6066734 L27.4166667,33.6066734 L27.4166667,46.9451667 L39.1666667,46.9451667 C40.2482243,46.9451667 41.125,45.9498589 41.125,44.7220845 L41.125,22.2822926 C40.4887822,22.4116582 39.8442868,22.4815492 39.198,22.4912623 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                        @break
+                            @case('categories')
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                                </svg>
+                                @break
 
-                                    @case('office')
-                                        <svg width="12px" height="12px" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(153.000000, 2.000000)">
-                                                            <path class="color-background opacity-6" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
-                                                            <path class="color-background" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                        @break
+                            @case('items')
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                </svg>
+                                @break
 
-                                    @case('box-3d')
-                                        <svg width="12px" height="12px" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-2319.000000, -291.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(603.000000, 0.000000)">
-                                                            <path class="color-background" d="M22.7597136,19.3090182 L38.8987031,11.2395234 C39.3926816,10.9925342 39.592906,10.3918611 39.3459167,9.89788265 C39.249157,9.70436312 39.0922432,9.5474453 38.8987261,9.45068056 L20.2741875,0.1378125 C19.905375,-0.04725 19.469625,-0.04725 19.0995,0.1378125 L3.1011696,8.13815822 C2.60720568,8.38517662 2.40701679,8.98586148 2.6540352,9.4798254 C2.75080129,9.67332903 2.90771305,9.83023153 3.10122239,9.9269862 L21.8652864,19.3090182 C22.1468139,19.4497819 22.4781861,19.4497819 22.7597136,19.3090182 Z"></path>
-                                                            <path class="color-background opacity-6" d="M23.625,22.429159 L23.625,39.8805372 C23.625,40.4328219 24.0727153,40.8805372 24.625,40.8805372 C24.7802551,40.8805372 24.9333778,40.8443874 25.0722402,40.7749511 L41.2741875,32.673375 C41.719125,32.4515625 42,31.9974375 42,31.5 L42,14.241659 C42,13.6893742 41.5522847,13.241659 41,13.241659 C40.8447549,13.241659 40.6916418,13.2778041 40.5527864,13.3472318 L24.1777864,21.5347318 C23.8390024,21.7041238 23.625,22.0503869 23.625,22.429159 Z"></path>
-                                                            <path class="color-background opacity-6" d="M20.4472136,21.5347318 L1.4472136,12.0347318 C0.953235098,11.7877425 0.352562058,11.9879669 0.105572809,12.4819454 C0.0361450918,12.6208008 6.47121774e-16,12.7739139 0,12.929159 L0,30.1875 C0,30.6849375 0.280875,31.1390625 0.7258125,31.3621875 L19.5528096,40.7750766 C20.0467945,41.0220531 20.6474623,40.8218132 20.8944388,40.3278283 C20.963859,40.1889789 21,40.0358742 21,39.8806379 L21,22.429159 C21,22.0503869 20.7859976,21.7041238 20.4472136,21.5347318 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                        @break
+                            @case('loans')
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                    <line x1="8" y1="11" x2="16" y2="11"></line>
+                                    <line x1="8" y1="15" x2="13" y2="15"></line>
+                                </svg>
+                                @break
 
-                                    @case('document')
-                                        <svg width="12px" height="12px" viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg">
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-1870.000000, -591.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(154.000000, 300.000000)">
-                                                            <path class="color-background opacity-6" d="M40,40 L36.3636364,40 L36.3636364,3.63636364 L5.45454545,3.63636364 L5.45454545,0 L38.1818182,0 C39.1854545,0 40,0.814545455 40,1.81818182 L40,40 Z"></path>
-                                                            <path class="color-background" d="M30.9090909,7.27272727 L1.81818182,7.27272727 C0.814545455,7.27272727 0,8.08727273 0,9.09090909 L0,41.8181818 C0,42.8218182 0.814545455,43.6363636 1.81818182,43.6363636 L30.9090909,43.6363636 C31.9127273,43.6363636 32.7272727,42.8218182 32.7272727,41.8181818 L32.7272727,9.09090909 C32.7272727,8.08727273 31.9127273,7.27272727 30.9090909,7.27272727 Z M18.1818182,34.5454545 L7.27272727,34.5454545 L7.27272727,30.9090909 L18.1818182,30.9090909 L18.1818182,34.5454545 Z M25.4545455,27.2727273 L7.27272727,27.2727273 L7.27272727,23.6363636 L25.4545455,23.6363636 L25.4545455,27.2727273 Z M25.4545455,20 L7.27272727,20 L7.27272727,16.3636364 L25.4545455,16.3636364 L25.4545455,20 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                        @break
+                            @case('returns')
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                                    <rect x="1" y="3" width="22" height="5" rx="1"></rect>
+                                    <polyline points="9 14 11 16 15 12"></polyline>
+                                </svg>
+                                @break
 
-                                    @case('archive')
-                                        <svg width="12px" height="12px" viewBox="0 0 43 36" xmlns="http://www.w3.org/2000/svg">
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g fill="#FFFFFF" fill-rule="nonzero">
-                                                    <path class="color-background opacity-6" d="M43,10.7482083 L43,3.58333333 C43,1.60354167 41.3964583,0 39.4166667,0 L3.58333333,0 C1.60354167,0 0,1.60354167 0,3.58333333 L0,10.7482083 L43,10.7482083 Z"></path>
-                                                    <path class="color-background" d="M3.58333333,14.5 L39.4166667,14.5 L39.4166667,32.25 C39.4166667,34.2297917 37.813125,35.8333333 35.8333333,35.8333333 L7.16666667,35.8333333 C5.186875,35.8333333 3.58333333,34.2297917 3.58333333,32.25 L3.58333333,14.5 Z M14.3333333,21.5 L14.3333333,25.0833333 L28.6666667,25.0833333 L28.6666667,21.5 L14.3333333,21.5 Z"></path>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                        @break
+                            @case('activity-logs')
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                                    <line x1="8" y1="16" x2="8" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12" y2="8"></line>
+                                    <line x1="16" y1="16" x2="16" y2="14"></line>
+                                </svg>
+                                @break
 
-                                    @case('History')
-                                        <svg width="12px" height="12px" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g fill="#FFFFFF" fill-rule="nonzero">
-                                                    <path class="color-background opacity-6" d="M21,2 C31.4934102,2 40,10.5065898 40,21 C40,31.4934102 31.4934102,40 21,40 C10.5065898,40 2,31.4934102 2,21 C2,10.5065898 10.5065898,2 21,2 Z"></path>
-                                                    <path class="color-background" d="M21,9 C19.8954305,9 19,9.8954305 19,11 L19,21 C19,21.7402819 19.4021991,22.3866258 20,22.7324356 L27,26.7739372 C27.9567957,27.3263434 29.180248,26.9985204 29.7326542,26.0417247 C30.2850604,25.084929 29.9572374,23.8614767 29.0004417,23.3090705 L23,19.8447119 L23,11 C23,9.8954305 22.1045695,9 21,9 Z"></path>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                        @break
+                            @case('users')
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                @break
 
-                                    @case('users')
-                                        <svg width="12px" height="12px" viewBox="0 0 46 42" xmlns="http://www.w3.org/2000/svg">
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-1717.000000, -291.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(1.000000, 0.000000)">
-                                                            <path class="color-background opacity-6" d="M45,0 L26,0 C25.447,0 25,0.447 25,1 L25,20 C25,20.379 25.214,20.725 25.553,20.895 C25.694,20.965 25.848,21 26,21 C26.212,21 26.424,20.933 26.6,20.8 L34.333,15 L45,15 C45.553,15 46,14.553 46,14 L46,1 C46,0.447 45.553,0 45,0 Z"></path>
-                                                            <path class="color-background" d="M22.883,32.86 C20.761,32.012 17.324,31 13,31 C8.676,31 5.239,32.012 3.116,32.86 C1.224,33.619 0,35.438 0,37.494 L0,41 C0,41.553 0.447,42 1,42 L25,42 C25.553,42 26,41.553 26,41 L26,37.494 C26,35.438 24.776,33.619 22.883,32.86 Z"></path>
-                                                            <path class="color-background" d="M13,28 C17.432,28 21,22.529 21,18 C21,13.589 17.411,10 13,10 C8.589,10 5,13.589 5,18 C5,22.529 8.568,28 13,28 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                        @break
+                            @default
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                </svg>
+                        @endswitch
 
-                                    @default
-                                        <svg width="12px" height="12px" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-2020.000000, -442.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(304.000000, 151.000000)">
-                                                            <polygon class="color-background opacity-6" points="18.0883333 15.7316667 11.1783333 8.82166667 13.3333333 6.66666667 6.66666667 0 0 6.66666667 6.66666667 13.3333333 8.82166667 11.1783333 15.315 17.6716667"></polygon>
-                                                            <path class="color-background opacity-6" d="M31.5666667,23.2333333 C31.0516667,23.2933333 30.53,23.3333333 30,23.3333333 C29.4916667,23.3333333 28.9866667,23.3033333 28.48,23.245 L22.4116667,30.7433333 L29.9416667,38.2733333 C32.2433333,40.575 35.9733333,40.575 38.275,38.2733333 C40.5766667,35.9716667 40.5766667,32.2416667 38.275,29.94 L31.5666667,23.2333333 Z"></path>
-                                                            <path class="color-background" d="M33.785,11.285 L28.715,6.215 L34.0616667,0.868333333 C32.82,0.315 31.4483333,0 30,0 C24.4766667,0 20,4.47666667 20,10 C20,10.99 20.1483333,11.9433333 20.4166667,12.8466667 L2.435,27.3966667 C0.95,28.7083333 0.0633333333,30.595 0.00333333333,32.5733333 C-0.0583333333,34.5533333 0.71,36.4916667 2.11,37.89 C3.47,39.2516667 5.27833333,40 7.20166667,40 C9.26666667,40 11.2366667,39.1133333 12.6033333,37.565 L27.1533333,19.5833333 C28.0566667,19.8516667 29.01,20 30,20 C35.5233333,20 40,15.5233333 40,10 C40,8.55166667 39.685,7.18 39.1316667,5.93666667 L33.785,11.285 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                @endswitch
-                            </div>
-                            <span class="nav-link-text ms-1">{{ $item['label'] }}</span>
-                        </a>
-                    </li>
-                @endforeach
+                        <span class="nav-link-text">{{ $item['label'] }}</span>
+                    </a>
+                </li>
             @endforeach
         </ul>
+    </div>
+
+    <div class="app-sidenav-footer">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="app-logout-btn">
+                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Keluar</span>
+            </button>
+        </form>
     </div>
 </aside>

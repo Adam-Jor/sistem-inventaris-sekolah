@@ -12,8 +12,8 @@
                         </p>
                     </div>
                     <div class="d-flex flex-wrap gap-2 flex-shrink-0">
-                        <a href="{{ route('items.index') }}" class="btn bg-gradient-info mb-0">Lihat Barang</a>
-                        <a href="{{ route('loans.create') }}" class="btn btn-outline-info mb-0">Ajukan Peminjaman</a>
+                        <a href="{{ route('loans.create') }}" class="btn bg-gradient-primary mb-0">Ajukan Peminjaman</a>
+                        <a href="{{ route('items.index') }}" class="btn btn-outline-primary mb-0">Lihat Barang</a>
                     </div>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-box-2 text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['active_loans'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['active_loans'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Sedang Dipinjam</span>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-bell-55 text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['waiting_loans'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['waiting_loans'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Menunggu Verifikasi</span>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-time-alarm text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['overdue_loans'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['overdue_loans'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Terlambat Kembali</span>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-check-bold text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['returned_loans'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['returned_loans'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Selesai Dikembalikan</span>
                 </div>
             </div>
@@ -97,7 +97,7 @@
                                     <div class="d-flex flex-column">
                                         <h6 class="mb-1 text-dark text-sm">{{ $loan->item?->name ?? '-' }}</h6>
                                         <span class="text-xs text-secondary">
-                                            {{ $loan->quantity }} unit &bull; Batas: <strong>{{ $loan->due_date?->translatedFormat('d M Y') }}</strong>
+                                            {{ number_format($loan->quantity, 0, ',', '.') }} unit &bull; Batas: <strong>{{ $loan->due_date?->translatedFormat('d M Y') }}</strong>
                                         </span>
                                     </div>
                                 </div>
@@ -154,7 +154,7 @@
                                             <div class="d-flex px-3 py-1">
                                                 <div class="d-flex flex-column justify-content-center">
                                                     <h6 class="mb-0 text-sm">{{ $loan->item?->name ?? '-' }}</h6>
-                                                    <p class="text-xs text-secondary mb-0">{{ $loan->quantity }} unit &bull; {{ $loan->item?->code }}</p>
+                                                    <p class="text-xs text-secondary mb-0">{{ number_format($loan->quantity, 0, ',', '.') }} unit &bull; {{ $loan->item?->code }}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -169,7 +169,7 @@
                                             </span>
                                         </td>
                                         <td class="align-middle text-center text-sm">
-                                            <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">{{ $loan->status }}</span>
+                                            <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">{{ ucfirst($loan->status) }}</span>
                                         </td>
                                     </tr>
                                 @empty

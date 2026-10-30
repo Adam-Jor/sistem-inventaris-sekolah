@@ -23,7 +23,7 @@
                         </p>
                     </div>
                     <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">
-                        {{ $loan->status }}
+                        {{ ucfirst($loan->status) }}
                     </span>
                 </div>
 
@@ -49,7 +49,7 @@
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                             <span class="text-secondary">Jumlah Dipinjam</span>
-                            <span class="badge badge-sm bg-gradient-dark">{{ $loan->quantity }} unit</span>
+                            <span class="badge badge-sm bg-gradient-dark">{{ number_format($loan->quantity, 0, ',', '.') }} unit</span>
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                             <span class="text-secondary">Tanggal Pinjam</span>
@@ -158,7 +158,7 @@
                             <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                                 <span class="text-secondary">Kondisi Saat Kembali</span>
                                 <span class="badge badge-sm bg-gradient-{{ $returnConditionBadge }}">
-                                    {{ $loan->returnLog->condition_on_return }}
+                                    {{ ucwords($loan->returnLog->condition_on_return) }}
                                 </span>
                             </li>
                             <li class="list-group-item px-0 d-flex flex-column text-sm">

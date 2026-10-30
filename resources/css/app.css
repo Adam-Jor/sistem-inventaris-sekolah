@@ -7,7 +7,305 @@
     display: none !important;
 }
 
-/* Modal ringan berbasis Alpine.js (lihat components/modal.blade.php) */
+/* ==========================================================================
+   1. Sidebar Modern Putih Penuh (langsung tampil seluruh menu tanpa terpotong)
+   ========================================================================== */
+#sidenav-main.app-sidenav {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100vh;
+    width: 15.625rem;
+    max-width: 15.625rem !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background-color: #ffffff !important;
+    border-right: 1px solid #eef0f5 !important;
+    box-shadow: 2px 0 16px rgba(15, 23, 42, 0.03) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+#sidenav-main.app-sidenav > .ps__rail-x,
+#sidenav-main.app-sidenav > .ps__rail-y {
+    display: none !important;
+}
+
+#sidenav-main.app-sidenav .app-sidenav-header {
+    height: auto !important;
+    padding: 1.5rem 1.35rem 1.15rem !important;
+    flex-shrink: 0;
+}
+
+#sidenav-main.app-sidenav .navbar-brand {
+    padding: 0 !important;
+}
+
+#sidenav-main.app-sidenav .navbar-brand-img {
+    max-height: 1.9rem !important;
+    width: auto;
+}
+
+#sidenav-main.app-sidenav .app-brand-text {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+}
+
+#sidenav-main.app-sidenav .app-sidenav-menu {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    padding: 0.35rem 0.9rem;
+}
+
+#sidenav-main.app-sidenav .navbar-nav {
+    display: flex;
+    flex-direction: column !important;
+    gap: 0.25rem;
+    width: 100%;
+}
+
+#sidenav-main.app-sidenav .navbar-nav > .nav-item {
+    margin-top: 0 !important;
+    width: 100%;
+}
+
+#sidenav-main.app-sidenav .navbar-nav > .nav-item > .nav-link.app-nav-link {
+    margin: 0 !important;
+    padding: 0.675rem 0.95rem !important;
+    border-radius: 0.65rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.8rem;
+    color: #4b5563 !important;
+    font-size: 0.885rem !important;
+    font-weight: 500 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+#sidenav-main.app-sidenav .app-nav-link .app-nav-icon {
+    flex-shrink: 0;
+    color: #64748b;
+    pointer-events: none;
+    transition: color 0.16s ease;
+}
+
+#sidenav-main.app-sidenav .app-nav-link .nav-link-text {
+    margin-left: 0 !important;
+}
+
+#sidenav-main.app-sidenav .navbar-nav > .nav-item > .nav-link.app-nav-link:not(.active):hover {
+    background-color: #f3f6fb !important;
+    color: #1e293b !important;
+}
+
+#sidenav-main.app-sidenav .navbar-nav > .nav-item > .nav-link.app-nav-link:not(.active):hover .app-nav-icon {
+    color: #2563eb;
+}
+
+#sidenav-main.app-sidenav .navbar-nav > .nav-item > .nav-link.app-nav-link.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.24) !important;
+}
+
+#sidenav-main.app-sidenav .navbar-nav > .nav-item > .nav-link.app-nav-link.active .app-nav-icon {
+    color: #ffffff !important;
+}
+
+#sidenav-main.app-sidenav .app-sidenav-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding: 0.75rem 0.9rem 1.25rem;
+}
+
+#sidenav-main.app-sidenav .app-logout-btn {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0.675rem 0.95rem;
+    border-radius: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: #64748b;
+    font-size: 0.885rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+#sidenav-main.app-sidenav .app-logout-btn .app-nav-icon {
+    flex-shrink: 0;
+    color: #64748b;
+    transition: color 0.16s ease;
+}
+
+#sidenav-main.app-sidenav .app-logout-btn:hover {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+#sidenav-main.app-sidenav .app-logout-btn:hover .app-nav-icon {
+    color: #dc2626;
+}
+
+@media (min-width: 1200px) {
+    .sidenav.app-sidenav.fixed-start ~ .main-content {
+        margin-left: 15.625rem !important;
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .g-sidenav-show.g-sidenav-pinned #sidenav-main.app-sidenav {
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16) !important;
+        z-index: 1045;
+    }
+}
+
+/* ==========================================================================
+   2. Soft Pastel Pill Badges (Status, Kondisi, Role, & Label Tabel)
+   ========================================================================== */
+.badge:not(.fixed-plugin .badge) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.875rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.005em;
+    border-radius: 9999px !important;
+    text-transform: none !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+td.text-center > .badge {
+    min-width: 5.25rem;
+}
+
+.badge.badge-xs {
+    padding: 0.175rem 0.55rem !important;
+    font-size: 0.65rem !important;
+    min-width: auto !important;
+}
+
+/* Warning / Orange (contoh: Menunggu, Rusak Ringan -> ala "Pending") */
+.badge.bg-gradient-warning,
+.badge.bg-warning {
+    background-color: #fff0db !important;
+    color: #d97706 !important;
+}
+
+/* Success / Green (contoh: Dikembalikan, Baik -> ala "Active") */
+.badge.bg-gradient-success,
+.badge.bg-success {
+    background-color: #dcfce7 !important;
+    color: #16a34a !important;
+}
+
+/* Danger / Red (contoh: Terlambat, Rusak Berat -> ala "Inactive") */
+.badge.bg-gradient-danger,
+.badge.bg-danger {
+    background-color: #fee2e2 !important;
+    color: #dc2626 !important;
+}
+
+/* Info / Blue (contoh: Dipinjam, Stok -> ala "On Sale") */
+.badge.bg-gradient-info,
+.badge.bg-info {
+    background-color: #dbeafe !important;
+    color: #2563eb !important;
+}
+
+/* Primary / Purple (contoh: Admin, Login -> ala "Bouncing") */
+.badge.bg-gradient-primary,
+.badge.bg-primary {
+    background-color: #ede9fe !important;
+    color: #7c3aed !important;
+}
+
+/* Secondary / Neutral Gray (contoh: Ditolak, User, Tidak Tersedia) */
+.badge.bg-gradient-secondary,
+.badge.bg-secondary {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    opacity: 1 !important;
+}
+
+/* Dark / Slate */
+.badge.bg-gradient-dark,
+.badge.bg-dark {
+    background-color: #e2e8f0 !important;
+    color: #1e293b !important;
+}
+
+/* ==========================================================================
+   3. Tombol Utama (Sesuai Gaya Sidebar Aktif: Modern Vibrant Blue Gradient)
+   ========================================================================== */
+.btn.bg-gradient-primary,
+.btn.btn-primary,
+.btn.bg-gradient-info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em;
+    border: none !important;
+    border-radius: 0.65rem !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn.bg-gradient-primary:hover,
+.btn.btn-primary:hover,
+.btn.bg-gradient-info:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    background-color: #1d4ed8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.38) !important;
+    transform: translateY(-1px);
+}
+
+.btn.bg-gradient-primary:active,
+.btn.btn-primary:active,
+.btn.bg-gradient-info:active,
+.btn.bg-gradient-primary:focus,
+.btn.btn-primary:focus,
+.btn.bg-gradient-info:focus {
+    color: #ffffff !important;
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.24) !important;
+}
+
+.btn-outline-primary {
+    border: 1.5px solid #2563eb !important;
+    color: #2563eb !important;
+    border-radius: 0.65rem !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   4. Modal Alpine.js, Password Input, Icon Shape, & Guest Mobile Layout
+   ========================================================================== */
 .app-modal {
     position: fixed;
     inset: 0;

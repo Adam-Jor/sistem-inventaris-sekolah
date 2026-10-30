@@ -68,7 +68,7 @@
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             <span class="badge badge-sm bg-gradient-{{ $category->items_count > 0 ? 'info' : 'secondary' }}">
-                                                {{ $category->items_count }} Barang
+                                                {{ number_format($category->items_count, 0, ',', '.') }} Barang
                                             </span>
                                         </td>
                                         <td class="align-middle text-center">
@@ -102,7 +102,7 @@
                                                         Apakah Anda yakin ingin menghapus kategori <strong>{{ $category->name }}</strong>?
                                                         @if ($category->items_count > 0)
                                                             <span class="d-block text-danger text-xs mt-2">
-                                                                Perhatian: Kategori ini masih memiliki {{ $category->items_count }} barang dan tidak dapat dihapus.
+                                                                Perhatian: Kategori ini masih memiliki {{ number_format($category->items_count, 0, ',', '.') }} barang dan tidak dapat dihapus.
                                                             </span>
                                                         @endif
                                                     </p>

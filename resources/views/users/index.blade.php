@@ -85,7 +85,7 @@
                                                     <h6 class="mb-0 text-sm d-flex align-items-center gap-1">
                                                         <span>{{ $user->name }}</span>
                                                         @if ($isCurrentUser)
-                                                            <span class="badge badge-sm bg-gradient-info ms-1" style="font-size: 0.6rem;">Anda</span>
+                                                            <span class="badge badge-xs bg-gradient-info ms-1">Anda</span>
                                                         @endif
                                                     </h6>
                                                 </div>
@@ -101,12 +101,12 @@
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             <span class="badge badge-sm bg-gradient-{{ $user->loans_count > 0 ? 'info' : 'secondary' }}">
-                                                {{ $user->loans_count }} Pinjaman
+                                                {{ number_format($user->loans_count, 0, ',', '.') }} Pinjaman
                                             </span>
                                             @if ($user->active_loans_count > 0)
                                                 <div class="mt-1">
                                                     <span class="text-xxs text-warning font-weight-bold">
-                                                        {{ $user->active_loans_count }} masih dipinjam
+                                                        {{ number_format($user->active_loans_count, 0, ',', '.') }} masih dipinjam
                                                     </span>
                                                 </div>
                                             @endif

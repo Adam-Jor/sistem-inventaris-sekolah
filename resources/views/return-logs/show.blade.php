@@ -20,7 +20,7 @@
                         </p>
                     </div>
                     <span class="badge badge-sm bg-gradient-{{ $conditionBadge }}">
-                        {{ $returnLog->condition_on_return }}
+                        {{ ucwords($returnLog->condition_on_return) }}
                     </span>
                 </div>
 
@@ -35,7 +35,7 @@
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                             <span class="text-secondary">Kondisi Saat Kembali</span>
                             <span class="badge badge-sm bg-gradient-{{ $conditionBadge }}">
-                                {{ $returnLog->condition_on_return }}
+                                {{ ucwords($returnLog->condition_on_return) }}
                             </span>
                         </li>
                         <li class="list-group-item px-0 d-flex flex-column text-sm">
@@ -87,7 +87,7 @@
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                             <span class="text-secondary">Jumlah Dikembalikan</span>
-                            <span class="badge badge-sm bg-gradient-info">{{ $loan?->quantity ?? 0 }} unit</span>
+                            <span class="badge badge-sm bg-gradient-info">{{ number_format($loan?->quantity ?? 0, 0, ',', '.') }} unit</span>
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                             <span class="text-secondary">Periode Peminjaman</span>

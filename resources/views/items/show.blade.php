@@ -19,7 +19,7 @@
                         <span class="text-xs text-secondary font-weight-bold">Kode: {{ $item->code }}</span>
                     </div>
                     <span class="badge badge-sm bg-gradient-{{ $conditionBadge }}">
-                        {{ $item->condition }}
+                        {{ ucwords($item->condition) }}
                     </span>
                 </div>
 
@@ -32,7 +32,7 @@
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
                             <span class="text-secondary">Stok Tersedia</span>
                             <span class="badge badge-sm bg-gradient-{{ $item->stock > 0 ? 'info' : 'secondary' }}">
-                                {{ $item->stock }} unit
+                                {{ number_format($item->stock, 0, ',', '.') }} unit
                             </span>
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
@@ -62,7 +62,7 @@
                                     Edit Barang
                                 </a>
                             @elseif ($item->isAvailable())
-                                <a href="{{ route('loans.create', ['item_id' => $item->id]) }}" class="btn btn-sm bg-gradient-info mb-0">
+                                <a href="{{ route('loans.create', ['item_id' => $item->id]) }}" class="btn btn-sm bg-gradient-primary mb-0">
                                     Ajukan Peminjaman
                                 </a>
                             @endif
@@ -114,7 +114,7 @@
                                             </td>
                                         @endif
                                         <td class="align-middle text-center">
-                                            <span class="text-xs font-weight-bold">{{ $loan->quantity }} unit</span>
+                                            <span class="text-xs font-weight-bold">{{ number_format($loan->quantity, 0, ',', '.') }} unit</span>
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="text-secondary text-xs">{{ $loan->loan_date?->translatedFormat('d M Y') }}</span>
@@ -123,7 +123,7 @@
                                             <span class="text-secondary text-xs">{{ $loan->due_date?->translatedFormat('d M Y') }}</span>
                                         </td>
                                         <td class="align-middle text-center">
-                                            <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">{{ $loan->status }}</span>
+                                            <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">{{ ucfirst($loan->status) }}</span>
                                         </td>
                                     </tr>
                                 @empty

@@ -122,7 +122,7 @@
                                 <a href="{{ route('loans.index') }}" class="btn btn-outline-secondary mb-0">
                                     Batal
                                 </a>
-                                <x-primary-button class="bg-gradient-{{ $isAdmin ? 'primary' : 'info' }}">
+                                <x-primary-button class="bg-gradient-primary">
                                     Kirim Pengajuan
                                 </x-primary-button>
                             </div>

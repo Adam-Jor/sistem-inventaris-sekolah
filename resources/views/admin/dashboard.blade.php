@@ -29,7 +29,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-box-2 text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['total_items'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['total_items'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Total Barang</span>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-collection text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['total_categories'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['total_categories'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Total Kategori</span>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-single-copy-04 text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['active_loans'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['active_loans'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Peminjaman Aktif</span>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-bell-55 text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['waiting_loans'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['waiting_loans'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Menunggu Verifikasi</span>
                 </div>
             </div>
@@ -81,7 +81,7 @@
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-time-alarm text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
-                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ $stats['overdue_loans'] }}</h4>
+                    <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['overdue_loans'], 0, ',', '.') }}</h4>
                     <span class="text-white text-sm">Peminjaman Terlambat</span>
                 </div>
             </div>
@@ -133,7 +133,7 @@
                                         </td>
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0">{{ $loan->item?->name ?? '-' }}</p>
-                                            <p class="text-xs text-secondary mb-0">{{ $loan->quantity }} unit &bull; {{ $loan->item?->code }}</p>
+                                            <p class="text-xs text-secondary mb-0">{{ number_format($loan->quantity, 0, ',', '.') }} unit &bull; {{ $loan->item?->code }}</p>
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="text-secondary text-xs font-weight-bold">
@@ -141,7 +141,7 @@
                                             </span>
                                         </td>
                                         <td class="align-middle text-center text-sm">
-                                            <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">{{ $loan->status }}</span>
+                                            <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">{{ ucfirst($loan->status) }}</span>
                                         </td>
                                     </tr>
                                 @empty

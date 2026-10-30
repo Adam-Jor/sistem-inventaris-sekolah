@@ -43,8 +43,8 @@
             </form>
 
             <span class="text-xs text-secondary ms-md-2">
-                Menampilkan <strong>{{ $paginator->firstItem() ?? 0 }}&ndash;{{ $paginator->lastItem() ?? 0 }}</strong>
-                dari <strong>{{ $paginator->total() }}</strong> data
+                Menampilkan <strong>{{ number_format($paginator->firstItem() ?? 0, 0, ',', '.') }}&ndash;{{ number_format($paginator->lastItem() ?? 0, 0, ',', '.') }}</strong>
+                dari <strong>{{ number_format($paginator->total(), 0, ',', '.') }}</strong> data
             </span>
         </div>
 
