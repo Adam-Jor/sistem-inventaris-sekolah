@@ -15,47 +15,47 @@
     <div class="row">
         <div class="col-lg-7 mb-4 mb-lg-0">
             <div class="card h-100">
-                <div class="card-header pb-0 d-flex align-items-center justify-content-between">
+                <div class="card-header pb-0 d-flex align-items-start justify-content-between gap-2">
                     <div>
                         <h5 class="mb-0 font-weight-bolder">Informasi Peminjaman</h5>
                         <p class="text-xs text-secondary mb-0">
                             Diajukan pada {{ $loan->created_at?->translatedFormat('d M Y, H:i') }}
                         </p>
                     </div>
-                    <span class="badge badge-sm bg-gradient-{{ $badgeColor }}">
+                    <span class="badge badge-sm bg-gradient-{{ $badgeColor }} flex-shrink-0">
                         {{ ucfirst($loan->status) }}
                     </span>
                 </div>
 
                 <div class="card-body">
                     <ul class="list-group list-group-flush mb-4">
-                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
+                        <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
                             <span class="text-secondary">Peminjam</span>
-                            <span class="font-weight-bold text-dark">
+                            <span class="font-weight-bold text-dark text-end">
                                 {{ $loan->user?->name ?? '-' }}
-                                <span class="text-xs text-secondary">({{ $loan->user?->email }})</span>
+                                <span class="text-xs text-secondary d-block d-sm-inline">({{ $loan->user?->email }})</span>
                             </span>
                         </li>
-                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
+                        <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
                             <span class="text-secondary">Barang</span>
-                            <span class="font-weight-bold text-dark">
+                            <span class="font-weight-bold text-dark text-end">
                                 {{ $loan->item?->name ?? '-' }}
                                 <span class="text-xs text-secondary">({{ $loan->item?->code }})</span>
                             </span>
                         </li>
-                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
+                        <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
                             <span class="text-secondary">Kategori Barang</span>
-                            <span class="font-weight-bold text-dark">{{ $loan->item?->category?->name ?? '-' }}</span>
+                            <span class="font-weight-bold text-dark text-end">{{ $loan->item?->category?->name ?? '-' }}</span>
                         </li>
-                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
+                        <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
                             <span class="text-secondary">Jumlah Dipinjam</span>
                             <span class="badge badge-sm bg-gradient-dark">{{ number_format($loan->quantity, 0, ',', '.') }} unit</span>
                         </li>
-                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
+                        <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
                             <span class="text-secondary">Tanggal Pinjam</span>
                             <span class="font-weight-bold text-dark">{{ $loan->loan_date?->translatedFormat('d M Y') }}</span>
                         </li>
-                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center text-sm">
+                        <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
                             <span class="text-secondary">Batas Tanggal Kembali</span>
                             <span class="font-weight-bold {{ $loan->status === 'terlambat' ? 'text-danger' : 'text-dark' }}">
                                 {{ $loan->due_date?->translatedFormat('d M Y') }}
@@ -67,8 +67,8 @@
                         </li>
                     </ul>
 
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                        <a href="{{ route('loans.index') }}" class="btn btn-sm btn-outline-secondary mb-0">
+                    <div class="d-flex flex-column-reverse flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
+                        <a href="{{ route('loans.index') }}" class="btn btn-sm btn-outline-secondary mb-0 w-100 w-sm-auto">
                             Kembali
                         </a>
 

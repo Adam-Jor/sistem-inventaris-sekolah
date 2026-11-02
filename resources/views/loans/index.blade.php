@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
-                <div class="card-header pb-0">
+                <div class="card-header pb-2 pb-md-0">
                     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
                         <div>
                             <h5 class="mb-0 font-weight-bolder">{{ $pageTitle }}</h5>
@@ -19,20 +19,20 @@
                             </p>
                         </div>
 
-                        <div>
-                            <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-primary mb-0">
+                        <div class="w-100 w-md-auto">
+                            <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-primary mb-0 w-100 w-md-auto">
                                 + Ajukan Peminjaman
                             </a>
                         </div>
                     </div>
 
-                    {{-- Form Pencarian & Filter Status --}}
+                    {{-- Form Pencarian & Filter Status (Mobile-First) --}}
                     <form method="GET" action="{{ route('loans.index') }}" class="row g-2 align-items-center bg-gray-100 p-2 border-radius-lg mb-2">
                         @if (($perPage ?? 10) !== 10)
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
 
-                        <div class="col-lg-6 col-md-6 col-12">
+                        <div class="col-12 col-md-6 col-lg-6">
                             <input
                                 type="text"
                                 name="search"
@@ -42,7 +42,7 @@
                             >
                         </div>
 
-                        <div class="col-lg-4 col-md-4 col-sm-6 col-12">
+                        <div class="col-12 col-sm-7 col-md-4 col-lg-4">
                             <select name="status" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Status</option>
                                 <option value="menunggu" @selected($status === 'menunggu')>Menunggu Verifikasi</option>
@@ -53,7 +53,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-2 col-md-2 col-sm-6 col-12 d-flex gap-2">
+                        <div class="col-12 col-sm-5 col-md-2 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
                             @if ($hasFilters)
                                 <a href="{{ route('loans.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
@@ -63,7 +63,10 @@
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
-                    <div class="table-responsive p-0">
+                    <x-table-toolbar :paginator="$loans" />
+
+                    {{-- Tampilan Tabel Desktop (>= 768px) --}}
+                    <div class="table-responsive p-0 d-none d-md-block">
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>
@@ -186,84 +189,6 @@
                                                     </button>
                                                 @endif
                                             </div>
-
-                                            @if ($isAdmin)
-                                                @if ($loan->status === 'menunggu')
-                                                    {{-- Modal Konfirmasi Setujui Peminjaman --}}
-                                                    <x-modal name="approve-loan-{{ $loan->id }}" maxWidth="sm">
-                                                        <form method="POST" action="{{ route('loans.approve', $loan) }}" class="text-start">
-                                                            @csrf
-                                                            @method('PATCH')
-
-                                                            <h6 class="font-weight-bolder mb-2">Setujui Peminjaman?</h6>
-                                                            <p class="text-sm text-secondary mb-3 text-wrap">
-                                                                Setujui peminjaman <strong>{{ $loan->item?->name }} ({{ $loan->quantity }} unit)</strong>
-                                                                oleh <strong>{{ $loan->user?->name }}</strong>?
-                                                                Stok barang akan langsung dikurangi sebanyak {{ $loan->quantity }} unit.
-                                                            </p>
-
-                                                            <div class="d-flex justify-content-end gap-2">
-                                                                <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
-                                                                <x-primary-button class="bg-gradient-success">Ya, Setujui</x-primary-button>
-                                                            </div>
-                                                        </form>
-                                                    </x-modal>
-
-                                                    {{-- Modal Konfirmasi Tolak Peminjaman --}}
-                                                    <x-modal name="reject-loan-{{ $loan->id }}" maxWidth="sm">
-                                                        <form method="POST" action="{{ route('loans.reject', $loan) }}" class="text-start">
-                                                            @csrf
-                                                            @method('PATCH')
-
-                                                            <h6 class="font-weight-bolder mb-2">Tolak Pengajuan?</h6>
-                                                            <p class="text-sm text-secondary mb-3 text-wrap">
-                                                                Tolak pengajuan peminjaman <strong>{{ $loan->item?->name }}</strong>
-                                                                oleh <strong>{{ $loan->user?->name }}</strong>?
-                                                            </p>
-
-                                                            <div class="mb-3">
-                                                                <x-input-label for="rejection_reason_{{ $loan->id }}" value="Alasan Penolakan (Opsional)" />
-                                                                <input
-                                                                    id="rejection_reason_{{ $loan->id }}"
-                                                                    type="text"
-                                                                    name="rejection_reason"
-                                                                    class="form-control form-control-sm"
-                                                                    placeholder="Contoh: Barang akan dipakai ujian sekolah"
-                                                                >
-                                                            </div>
-
-                                                            <div class="d-flex justify-content-end gap-2">
-                                                                <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
-                                                                <x-danger-button>Tolak Pengajuan</x-danger-button>
-                                                            </div>
-                                                        </form>
-                                                    </x-modal>
-                                                @endif
-
-                                                {{-- Modal Konfirmasi Soft Delete Peminjaman --}}
-                                                <x-modal name="delete-loan-{{ $loan->id }}" maxWidth="sm">
-                                                    <form method="POST" action="{{ route('loans.destroy', $loan) }}" class="text-start">
-                                                        @csrf
-                                                        @method('DELETE')
-
-                                                        <h6 class="font-weight-bolder mb-2">Hapus Data Peminjaman?</h6>
-                                                        <p class="text-sm text-secondary mb-3 text-wrap">
-                                                            Apakah Anda yakin ingin menghapus data peminjaman
-                                                            <strong>{{ $loan->item?->name }}</strong> oleh <strong>{{ $loan->user?->name }}</strong>?
-                                                            @if (in_array($loan->status, ['dipinjam', 'terlambat'], true))
-                                                                <span class="d-block text-info text-xs mt-2">
-                                                                    Catatan: Karena status masih {{ $loan->status }}, stok barang ({{ $loan->quantity }} unit) akan otomatis dikembalikan.
-                                                                </span>
-                                                            @endif
-                                                        </p>
-
-                                                        <div class="d-flex justify-content-end gap-2">
-                                                            <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
-                                                            <x-danger-button>Ya, Hapus</x-danger-button>
-                                                        </div>
-                                                    </form>
-                                                </x-modal>
-                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -284,10 +209,205 @@
                         </table>
                     </div>
 
+                    {{-- Tampilan Kartu Mobile (< 768px) --}}
+                    <div class="mobile-table-cards d-md-none">
+                        @forelse ($loans as $loan)
+                            @php
+                                $badgeColor = match ($loan->status) {
+                                    'dipinjam' => 'info',
+                                    'dikembalikan' => 'success',
+                                    'terlambat' => 'danger',
+                                    'menunggu' => 'warning',
+                                    'ditolak' => 'secondary',
+                                    default => 'secondary',
+                                };
+                            @endphp
+                            <div class="mobile-row-card">
+                                <div class="mobile-row-header">
+                                    <div class="mobile-row-header-main">
+                                        <span class="mobile-row-caption">Barang Dipinjam</span>
+                                        <h6 class="mobile-row-title">
+                                            <a href="{{ route('loans.show', $loan) }}">
+                                                {{ $loan->item?->name ?? '-' }}
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <span class="badge badge-sm bg-gradient-{{ $badgeColor }} flex-shrink-0">
+                                        {{ ucfirst($loan->status) }}
+                                    </span>
+                                </div>
+
+                                <div class="mobile-row-meta">
+                                    @if ($isAdmin)
+                                        <div class="mobile-row-field">
+                                            <span class="mobile-field-label">Peminjam</span>
+                                            <span class="mobile-field-value">{{ $loan->user?->name ?? '-' }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Kode Barang</span>
+                                        <span class="mobile-field-value">
+                                            {{ $loan->item?->code ?? '-' }}
+                                            @if ($loan->item?->trashed())
+                                                <span class="text-danger">(Barang Dihapus)</span>
+                                            @endif
+                                        </span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Jumlah Pinjam</span>
+                                        <span class="mobile-field-value">{{ number_format($loan->quantity, 0, ',', '.') }} unit</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Tanggal Pinjam</span>
+                                        <span class="mobile-field-value">{{ $loan->loan_date?->translatedFormat('d M Y') }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Jatuh Tempo</span>
+                                        <span class="mobile-field-value {{ $loan->status === 'terlambat' ? 'text-danger' : '' }}">
+                                            {{ $loan->due_date?->translatedFormat('d M Y') }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="mobile-row-actions">
+                                    <a href="{{ route('loans.show', $loan) }}" class="btn mobile-btn-detail">
+                                        {{ $isAdmin ? 'Lihat Detail' : 'Lihat Detail Peminjaman' }}
+                                    </a>
+
+                                    @if ($isAdmin)
+                                        @if ($loan->status === 'menunggu')
+                                            <button
+                                                type="button"
+                                                x-data=""
+                                                x-on:click.prevent="$dispatch('open-modal', 'approve-loan-{{ $loan->id }}')"
+                                                class="btn bg-gradient-success"
+                                            >
+                                                Setujui
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                x-data=""
+                                                x-on:click.prevent="$dispatch('open-modal', 'reject-loan-{{ $loan->id }}')"
+                                                class="btn bg-gradient-warning"
+                                            >
+                                                Tolak
+                                            </button>
+                                        @elseif (in_array($loan->status, ['dipinjam', 'terlambat'], true))
+                                            <a href="{{ route('loans.return.create', $loan) }}" class="btn bg-gradient-info">
+                                                Catat Kembali
+                                            </a>
+                                        @endif
+
+                                        <button
+                                            type="button"
+                                            x-data=""
+                                            x-on:click.prevent="$dispatch('open-modal', 'delete-loan-{{ $loan->id }}')"
+                                            class="btn bg-gradient-danger"
+                                        >
+                                            Hapus
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="mobile-empty-state">
+                                <p class="text-sm text-secondary mb-2">
+                                    {{ $hasFilters ? 'Tidak ada data peminjaman yang cocok dengan filter Anda.' : 'Belum ada data peminjaman.' }}
+                                </p>
+                                @if (! $hasFilters)
+                                    <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-primary mb-0">
+                                        + Ajukan Peminjaman Baru
+                                    </a>
+                                @endif
+                            </div>
+                        @endforelse
+                    </div>
+
+                    {{-- Modal Konfirmasi Admin (dipakai bersama oleh Desktop & Mobile) --}}
+                    @if ($isAdmin)
+                        @foreach ($loans as $loan)
+                            @if ($loan->status === 'menunggu')
+                                {{-- Modal Konfirmasi Setujui Peminjaman --}}
+                                <x-modal name="approve-loan-{{ $loan->id }}" maxWidth="sm">
+                                    <form method="POST" action="{{ route('loans.approve', $loan) }}" class="text-start">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <h6 class="font-weight-bolder mb-2">Setujui Peminjaman?</h6>
+                                        <p class="text-sm text-secondary mb-3 text-wrap">
+                                            Setujui peminjaman <strong>{{ $loan->item?->name }} ({{ number_format($loan->quantity, 0, ',', '.') }} unit)</strong>
+                                            oleh <strong>{{ $loan->user?->name }}</strong>?
+                                            Stok barang akan langsung dikurangi sebanyak {{ number_format($loan->quantity, 0, ',', '.') }} unit.
+                                        </p>
+
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
+                                            <x-primary-button class="bg-gradient-success">Ya, Setujui</x-primary-button>
+                                        </div>
+                                    </form>
+                                </x-modal>
+
+                                {{-- Modal Konfirmasi Tolak Peminjaman --}}
+                                <x-modal name="reject-loan-{{ $loan->id }}" maxWidth="sm">
+                                    <form method="POST" action="{{ route('loans.reject', $loan) }}" class="text-start">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <h6 class="font-weight-bolder mb-2">Tolak Pengajuan?</h6>
+                                        <p class="text-sm text-secondary mb-3 text-wrap">
+                                            Tolak pengajuan peminjaman <strong>{{ $loan->item?->name }}</strong>
+                                            oleh <strong>{{ $loan->user?->name }}</strong>?
+                                        </p>
+
+                                        <div class="mb-3">
+                                            <x-input-label for="rejection_reason_{{ $loan->id }}" value="Alasan Penolakan (Opsional)" />
+                                            <input
+                                                id="rejection_reason_{{ $loan->id }}"
+                                                type="text"
+                                                name="rejection_reason"
+                                                class="form-control form-control-sm"
+                                                placeholder="Contoh: Barang akan dipakai ujian sekolah"
+                                            >
+                                        </div>
+
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
+                                            <x-danger-button>Tolak Pengajuan</x-danger-button>
+                                        </div>
+                                    </form>
+                                </x-modal>
+                            @endif
+
+                            {{-- Modal Konfirmasi Soft Delete Peminjaman --}}
+                            <x-modal name="delete-loan-{{ $loan->id }}" maxWidth="sm">
+                                <form method="POST" action="{{ route('loans.destroy', $loan) }}" class="text-start">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <h6 class="font-weight-bolder mb-2">Hapus Data Peminjaman?</h6>
+                                    <p class="text-sm text-secondary mb-3 text-wrap">
+                                        Apakah Anda yakin ingin menghapus data peminjaman
+                                        <strong>{{ $loan->item?->name }}</strong> oleh <strong>{{ $loan->user?->name }}</strong>?
+                                        @if (in_array($loan->status, ['dipinjam', 'terlambat'], true))
+                                            <span class="d-block text-info text-xs mt-2">
+                                                Catatan: Karena status masih {{ $loan->status }}, stok barang ({{ number_format($loan->quantity, 0, ',', '.') }} unit) akan otomatis dikembalikan.
+                                            </span>
+                                        @endif
+                                    </p>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
+                                        <x-danger-button>Ya, Hapus</x-danger-button>
+                                    </div>
+                                </form>
+                            </x-modal>
+                        @endforeach
+                    @endif
+
                     <x-table-pagination :paginator="$loans" />
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
-

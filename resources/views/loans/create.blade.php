@@ -118,11 +118,11 @@
                                 <x-input-error :messages="$errors->get('notes')" />
                             </div>
 
-                            <div class="d-flex align-items-center justify-content-end gap-2">
-                                <a href="{{ route('loans.index') }}" class="btn btn-outline-secondary mb-0">
+                            <div class="d-flex flex-column-reverse flex-sm-row align-items-stretch align-items-sm-center justify-content-end gap-2">
+                                <a href="{{ route('loans.index') }}" class="btn btn-outline-secondary mb-0 w-100 w-sm-auto">
                                     Batal
                                 </a>
-                                <x-primary-button class="bg-gradient-primary">
+                                <x-primary-button class="bg-gradient-primary w-100 w-sm-auto">
                                     Kirim Pengajuan
                                 </x-primary-button>
                             </div>

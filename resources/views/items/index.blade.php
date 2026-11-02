@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
-                <div class="card-header pb-0">
+                <div class="card-header pb-2 pb-md-0">
                     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
                         <div>
                             <h5 class="mb-0 font-weight-bolder">{{ $pageTitle }}</h5>
@@ -20,20 +20,20 @@
                         </div>
 
                         @if ($isAdmin)
-                            <div>
-                                <a href="{{ route('items.create') }}" class="btn btn-sm bg-gradient-primary mb-0">
+                            <div class="w-100 w-md-auto">
+                                <a href="{{ route('items.create') }}" class="btn btn-sm bg-gradient-primary mb-0 w-100 w-md-auto">
                                     + Tambah Barang
                                 </a>
                             </div>
                         @endif
                     </div>
 
-                    {{-- Form Pencarian & Filter --}}
+                    {{-- Form Pencarian & Filter (Mobile-First Grid) --}}
                     <form method="GET" action="{{ route('items.index') }}" class="row g-2 align-items-center bg-gray-100 p-2 border-radius-lg mb-2">
                         @if (($perPage ?? 10) !== 10)
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
-                        <div class="col-lg-4 col-md-6 col-12">
+                        <div class="col-12 col-md-6 col-lg-4">
                             <input
                                 type="text"
                                 name="search"
@@ -43,7 +43,7 @@
                             >
                         </div>
 
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                        <div class="col-6 col-md-3 col-lg-3">
                             <select name="category_id" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Kategori</option>
                                 @foreach ($categories as $category)
@@ -54,7 +54,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                        <div class="col-6 col-md-3 col-lg-3">
                             <select name="condition" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Kondisi</option>
                                 <option value="baik" @selected($condition === 'baik')>Baik</option>
@@ -63,7 +63,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-2 col-md-12 col-12 d-flex gap-2">
+                        <div class="col-12 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
                             @if ($hasFilters)
                                 <a href="{{ route('items.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
@@ -73,7 +73,10 @@
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
-                    <div class="table-responsive p-0">
+                    <x-table-toolbar :paginator="$items" />
+
+                    {{-- Tampilan Tabel Desktop (>= 768px) --}}
+                    <div class="table-responsive p-0 d-none d-md-block">
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>
@@ -154,27 +157,6 @@
                                                     @endif
                                                 @endif
                                             </div>
-
-                                            @if ($isAdmin)
-                                                {{-- Modal Konfirmasi Soft Delete Barang (Alpine.js) --}}
-                                                <x-modal name="delete-item-{{ $item->id }}" maxWidth="sm">
-                                                    <form method="POST" action="{{ route('items.destroy', $item) }}" class="text-start">
-                                                        @csrf
-                                                        @method('DELETE')
-
-                                                        <h6 class="font-weight-bolder mb-2">Hapus Barang?</h6>
-                                                        <p class="text-sm text-secondary mb-3 text-wrap">
-                                                            Apakah Anda yakin ingin menghapus barang <strong>{{ $item->name }} ({{ $item->code }})</strong>?
-                                                            Data riwayat peminjaman terkait barang ini tetap tersimpan.
-                                                        </p>
-
-                                                        <div class="d-flex justify-content-end gap-2">
-                                                            <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
-                                                            <x-danger-button>Ya, Hapus</x-danger-button>
-                                                        </div>
-                                                    </form>
-                                                </x-modal>
-                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -195,10 +177,119 @@
                         </table>
                     </div>
 
+                    {{-- Tampilan Kartu Mobile (< 768px) --}}
+                    <div class="mobile-table-cards d-md-none">
+                        @forelse ($items as $item)
+                            @php
+                                $conditionBadge = match ($item->condition) {
+                                    'baik' => 'success',
+                                    'rusak ringan' => 'warning',
+                                    'rusak berat' => 'danger',
+                                    default => 'secondary',
+                                };
+                            @endphp
+                            <div class="mobile-row-card">
+                                <div class="mobile-row-header">
+                                    <div class="mobile-row-header-main">
+                                        <span class="mobile-row-caption">Nama Barang</span>
+                                        <h6 class="mobile-row-title">
+                                            <a href="{{ route('items.show', $item) }}">{{ $item->name }}</a>
+                                        </h6>
+                                    </div>
+                                    <span class="badge badge-sm bg-gradient-{{ $conditionBadge }} flex-shrink-0">
+                                        {{ ucwords($item->condition) }}
+                                    </span>
+                                </div>
+
+                                <div class="mobile-row-meta">
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Kode Barang</span>
+                                        <span class="mobile-field-value">{{ $item->code }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Kategori</span>
+                                        <span class="mobile-field-value">{{ $item->category?->name ?? '-' }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Stok Tersedia</span>
+                                        <span class="mobile-field-value {{ $item->stock > 0 ? 'text-primary' : 'text-secondary' }}">
+                                            {{ number_format($item->stock, 0, ',', '.') }} unit
+                                        </span>
+                                    </div>
+                                    @if (! $isAdmin)
+                                        <div class="mobile-row-field">
+                                            <span class="mobile-field-label">Ketersediaan</span>
+                                            <span class="mobile-field-value {{ $item->isAvailable() ? 'text-success' : 'text-secondary' }}">
+                                                {{ $item->isAvailable() ? 'Siap Dipinjam' : 'Tidak Tersedia' }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="mobile-row-actions">
+                                    <a href="{{ route('items.show', $item) }}" class="btn mobile-btn-detail">
+                                        Lihat Detail
+                                    </a>
+
+                                    @if ($isAdmin)
+                                        <a href="{{ route('items.edit', $item) }}" class="btn btn-outline-dark">
+                                            Edit
+                                        </a>
+                                        <button
+                                            type="button"
+                                            x-data=""
+                                            x-on:click.prevent="$dispatch('open-modal', 'delete-item-{{ $item->id }}')"
+                                            class="btn bg-gradient-danger"
+                                        >
+                                            Hapus
+                                        </button>
+                                    @elseif ($item->isAvailable())
+                                        <a href="{{ route('loans.create', ['item_id' => $item->id]) }}" class="btn bg-gradient-primary">
+                                            Ajukan Peminjaman
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="mobile-empty-state">
+                                <p class="text-sm text-secondary mb-2">
+                                    {{ $hasFilters ? 'Tidak ada barang yang cocok dengan pencarian/filter Anda.' : 'Belum ada data barang inventaris.' }}
+                                </p>
+                                @if ($isAdmin && ! $hasFilters)
+                                    <a href="{{ route('items.create') }}" class="btn btn-sm bg-gradient-primary mb-0">
+                                        + Tambah Barang Pertama
+                                    </a>
+                                @endif
+                            </div>
+                        @endforelse
+                    </div>
+
+                    {{-- Modal Konfirmasi Soft Delete Barang (dipakai bersama oleh Desktop & Mobile) --}}
+                    @if ($isAdmin)
+                        @foreach ($items as $item)
+                            <x-modal name="delete-item-{{ $item->id }}" maxWidth="sm">
+                                <form method="POST" action="{{ route('items.destroy', $item) }}" class="text-start">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <h6 class="font-weight-bolder mb-2">Hapus Barang?</h6>
+                                    <p class="text-sm text-secondary mb-3 text-wrap">
+                                        Apakah Anda yakin ingin menghapus barang <strong>{{ $item->name }} ({{ $item->code }})</strong>?
+                                        Data riwayat peminjaman terkait barang ini tetap tersimpan.
+                                    </p>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <x-secondary-button x-on:click="$dispatch('close')">Batal</x-secondary-button>
+                                        <x-danger-button>Ya, Hapus</x-danger-button>
+                                    </div>
+                                </form>
+                            </x-modal>
+                        @endforeach
+                    @endif
+
                     <x-table-pagination :paginator="$items" />
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
-

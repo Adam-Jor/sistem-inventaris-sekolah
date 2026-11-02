@@ -1,9 +1,9 @@
 <x-app-layout title="Dashboard" :breadcrumbs="['Dashboard' => null]">
-    {{-- Banner Sambutan & Aksi Cepat --}}
-    <div class="row mb-4">
+    {{-- Banner Sambutan & Aksi Cepat (Mobile-First) --}}
+    <div class="row mb-3 mb-md-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                <div class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                     <div>
                         <h4 class="font-weight-bolder mb-1">Selamat datang, {{ auth()->user()->name }}</h4>
                         <p class="text-sm text-secondary mb-0">
@@ -11,65 +11,65 @@
                             Lihat ketersediaan barang sekolah, ajukan peminjaman baru, dan pantau jadwal pengembalian Anda.
                         </p>
                     </div>
-                    <div class="d-flex flex-wrap gap-2 flex-shrink-0">
-                        <a href="{{ route('loans.create') }}" class="btn bg-gradient-primary mb-0">Ajukan Peminjaman</a>
-                        <a href="{{ route('items.index') }}" class="btn btn-outline-primary mb-0">Lihat Barang</a>
+                    <div class="d-flex flex-wrap gap-2 w-100 w-md-auto flex-shrink-0">
+                        <a href="{{ route('loans.create') }}" class="btn bg-gradient-primary mb-0 flex-fill flex-md-grow-0">Ajukan Peminjaman</a>
+                        <a href="{{ route('items.index') }}" class="btn btn-outline-primary mb-0 flex-fill flex-md-grow-0">Lihat Barang</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Kartu Statistik Peminjaman User (Gaya Soft UI Dashboard 3) --}}
-    <div class="row">
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="card h-100">
+    {{-- Kartu Statistik Peminjaman User (Grid 2x2 di Mobile, 4 Kolom di Desktop) --}}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 user-stat-card">
                 <span class="mask bg-info opacity-10 border-radius-lg"></span>
                 <div class="card-body p-3 position-relative">
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-box-2 text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
                     <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['active_loans'], 0, ',', '.') }}</h4>
-                    <span class="text-white text-sm">Sedang Dipinjam</span>
+                    <span class="text-white text-sm user-stat-label">Sedang Dipinjam</span>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="card h-100">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 user-stat-card">
                 <span class="mask bg-warning opacity-10 border-radius-lg"></span>
                 <div class="card-body p-3 position-relative">
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-bell-55 text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
                     <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['waiting_loans'], 0, ',', '.') }}</h4>
-                    <span class="text-white text-sm">Menunggu Verifikasi</span>
+                    <span class="text-white text-sm user-stat-label">Menunggu Verifikasi</span>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="card h-100">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 user-stat-card">
                 <span class="mask bg-danger opacity-10 border-radius-lg"></span>
                 <div class="card-body p-3 position-relative">
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-time-alarm text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
                     <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['overdue_loans'], 0, ',', '.') }}</h4>
-                    <span class="text-white text-sm">Terlambat Kembali</span>
+                    <span class="text-white text-sm user-stat-label">Terlambat Kembali</span>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="card h-100">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 user-stat-card">
                 <span class="mask bg-dark opacity-10 border-radius-lg"></span>
                 <div class="card-body p-3 position-relative">
                     <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
                         <i class="ni ni-check-bold text-dark text-gradient text-lg opacity-10" aria-hidden="true"></i>
                     </div>
                     <h4 class="text-white font-weight-bolder mb-0 mt-3">{{ number_format($stats['returned_loans'], 0, ',', '.') }}</h4>
-                    <span class="text-white text-sm">Selesai Dikembalikan</span>
+                    <span class="text-white text-sm user-stat-label">Selesai Dikembalikan</span>
                 </div>
             </div>
         </div>
@@ -89,19 +89,23 @@
                             @php
                                 $isOverdue = $loan->isOverdue();
                             @endphp
-                            <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon icon-shape icon-sm me-3 bg-gradient-{{ $isOverdue ? 'danger' : 'info' }} shadow text-center border-radius-md d-flex align-items-center justify-content-center">
+                            <li class="list-group-item border-0 d-flex justify-content-between align-items-center gap-2 ps-0 mb-2 border-radius-lg">
+                                <div class="d-flex align-items-center min-w-0">
+                                    <div class="icon icon-shape icon-sm me-3 bg-gradient-{{ $isOverdue ? 'danger' : 'info' }} shadow text-center border-radius-md d-flex align-items-center justify-content-center flex-shrink-0">
                                         <i class="ni ni-box-2 text-white opacity-10"></i>
                                     </div>
-                                    <div class="d-flex flex-column">
-                                        <h6 class="mb-1 text-dark text-sm">{{ $loan->item?->name ?? '-' }}</h6>
+                                    <div class="d-flex flex-column min-w-0">
+                                        <h6 class="mb-1 text-dark text-sm text-truncate">
+                                            <a href="{{ route('loans.show', $loan) }}" class="text-dark">
+                                                {{ $loan->item?->name ?? '-' }}
+                                            </a>
+                                        </h6>
                                         <span class="text-xs text-secondary">
                                             {{ number_format($loan->quantity, 0, ',', '.') }} unit &bull; Batas: <strong>{{ $loan->due_date?->translatedFormat('d M Y') }}</strong>
                                         </span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center flex-shrink-0">
                                     <span class="badge badge-sm bg-gradient-{{ $isOverdue ? 'danger' : 'info' }}">
                                         {{ $isOverdue ? 'Terlambat' : 'Dipinjam' }}
                                     </span>
@@ -119,15 +123,16 @@
 
         <div class="col-lg-7">
             <div class="card h-100">
-                <div class="card-header pb-0 d-flex align-items-center justify-content-between">
+                <div class="card-header pb-2 pb-md-0 d-flex align-items-center justify-content-between gap-2">
                     <div>
                         <h6 class="mb-0">Status Pengajuan & Peminjaman Saya</h6>
                         <p class="text-xs text-secondary mb-0">5 riwayat peminjaman terakhir Anda</p>
                     </div>
-                    <a href="{{ route('loans.index') }}" class="btn btn-sm btn-outline-secondary mb-0">Lihat Semua</a>
+                    <a href="{{ route('loans.index') }}" class="btn btn-sm btn-outline-secondary mb-0 flex-shrink-0">Lihat Semua</a>
                 </div>
                 <div class="card-body px-0 pt-2 pb-2">
-                    <div class="table-responsive p-0">
+                    {{-- Tampilan Tabel Desktop (>= 768px) --}}
+                    <div class="table-responsive p-0 d-none d-md-block">
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>
@@ -153,7 +158,11 @@
                                         <td>
                                             <div class="d-flex px-3 py-1">
                                                 <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">{{ $loan->item?->name ?? '-' }}</h6>
+                                                    <h6 class="mb-0 text-sm">
+                                                        <a href="{{ route('loans.show', $loan) }}" class="text-dark">
+                                                            {{ $loan->item?->name ?? '-' }}
+                                                        </a>
+                                                    </h6>
                                                     <p class="text-xs text-secondary mb-0">{{ number_format($loan->quantity, 0, ',', '.') }} unit &bull; {{ $loan->item?->code }}</p>
                                                 </div>
                                             </div>
@@ -182,9 +191,71 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Tampilan Kartu Mobile (< 768px) --}}
+                    <div class="mobile-table-cards d-md-none">
+                        @forelse ($recentLoans as $loan)
+                            @php
+                                $badgeColor = match ($loan->status) {
+                                    'dipinjam' => 'info',
+                                    'dikembalikan' => 'success',
+                                    'terlambat' => 'danger',
+                                    'menunggu' => 'warning',
+                                    'ditolak' => 'secondary',
+                                    default => 'secondary',
+                                };
+                            @endphp
+                            <div class="mobile-row-card">
+                                <div class="mobile-row-header">
+                                    <div class="mobile-row-header-main">
+                                        <span class="mobile-row-caption">Barang Dipinjam</span>
+                                        <h6 class="mobile-row-title">
+                                            <a href="{{ route('loans.show', $loan) }}">{{ $loan->item?->name ?? '-' }}</a>
+                                        </h6>
+                                    </div>
+                                    <span class="badge badge-sm bg-gradient-{{ $badgeColor }} flex-shrink-0">
+                                        {{ ucfirst($loan->status) }}
+                                    </span>
+                                </div>
+
+                                <div class="mobile-row-meta">
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Kode Barang</span>
+                                        <span class="mobile-field-value">{{ $loan->item?->code ?? '-' }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Jumlah</span>
+                                        <span class="mobile-field-value">{{ number_format($loan->quantity, 0, ',', '.') }} unit</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Tanggal Pinjam</span>
+                                        <span class="mobile-field-value">{{ $loan->loan_date?->translatedFormat('d M Y') }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Batas Kembali</span>
+                                        <span class="mobile-field-value {{ $loan->status === 'terlambat' ? 'text-danger' : '' }}">
+                                            {{ $loan->due_date?->translatedFormat('d M Y') }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="mobile-row-actions">
+                                    <a href="{{ route('loans.show', $loan) }}" class="btn mobile-btn-detail">
+                                        Lihat Detail Peminjaman
+                                    </a>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="mobile-empty-state">
+                                <p class="text-sm text-secondary mb-2">Anda belum pernah mengajukan peminjaman.</p>
+                                <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-primary mb-0">
+                                    + Ajukan Peminjaman
+                                </a>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
-

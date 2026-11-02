@@ -8,18 +8,19 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card border">
-                    <div class="card-header pb-2 d-flex align-items-center justify-content-between">
+                    <div class="card-header pb-2 d-flex align-items-center justify-content-between gap-2">
                         <div>
-                            <h6 class="mb-0 font-weight-bolder">Menunggu Pengembalian ({{ $unreturnedLoans->count() }})</h6>
+                            <h6 class="mb-0 font-weight-bolder">Menunggu Pengembalian ({{ number_format($unreturnedLoans->count(), 0, ',', '.') }})</h6>
                             <p class="text-xs text-secondary mb-0">
                                 Daftar peminjaman aktif/terlambat yang siap dicatat pengembaliannya oleh Admin
                             </p>
                         </div>
-                        <a href="{{ route('loans.index') }}" class="text-xs font-weight-bold text-primary">Lihat Semua Peminjaman</a>
+                        <a href="{{ route('loans.index') }}" class="text-xs font-weight-bold text-primary flex-shrink-0">Lihat Semua</a>
                     </div>
 
                     <div class="card-body px-0 pt-0 pb-2">
-                        <div class="table-responsive p-0">
+                        {{-- Tampilan Tabel Desktop (>= 768px) --}}
+                        <div class="table-responsive p-0 d-none d-md-block">
                             <table class="table align-items-center mb-0">
                                 <thead>
                                     <tr>
@@ -65,6 +66,53 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {{-- Tampilan Kartu Mobile (< 768px) --}}
+                        <div class="mobile-table-cards d-md-none">
+                            @foreach ($unreturnedLoans as $activeLoan)
+                                <div class="mobile-row-card">
+                                    <div class="mobile-row-header">
+                                        <div class="mobile-row-header-main">
+                                            <span class="mobile-row-caption">Barang Dipinjam</span>
+                                            <h6 class="mobile-row-title">{{ $activeLoan->item?->name ?? '-' }}</h6>
+                                        </div>
+                                        <span class="badge badge-sm bg-gradient-{{ $activeLoan->status === 'terlambat' ? 'danger' : 'info' }} flex-shrink-0">
+                                            {{ ucfirst($activeLoan->status) }}
+                                        </span>
+                                    </div>
+
+                                    <div class="mobile-row-meta">
+                                        <div class="mobile-row-field">
+                                            <span class="mobile-field-label">Peminjam</span>
+                                            <span class="mobile-field-value">{{ $activeLoan->user?->name ?? '-' }}</span>
+                                        </div>
+                                        <div class="mobile-row-field">
+                                            <span class="mobile-field-label">Kode Barang</span>
+                                            <span class="mobile-field-value">{{ $activeLoan->item?->code ?? '-' }}</span>
+                                        </div>
+                                        <div class="mobile-row-field">
+                                            <span class="mobile-field-label">Jumlah</span>
+                                            <span class="mobile-field-value">{{ number_format($activeLoan->quantity, 0, ',', '.') }} unit</span>
+                                        </div>
+                                        <div class="mobile-row-field">
+                                            <span class="mobile-field-label">Jatuh Tempo</span>
+                                            <span class="mobile-field-value {{ $activeLoan->status === 'terlambat' ? 'text-danger' : '' }}">
+                                                {{ $activeLoan->due_date?->translatedFormat('d M Y') }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mobile-row-actions">
+                                        <a href="{{ route('loans.show', $activeLoan) }}" class="btn mobile-btn-detail">
+                                            Lihat Detail
+                                        </a>
+                                        <a href="{{ route('loans.return.create', $activeLoan) }}" class="btn bg-gradient-primary">
+                                            Catat Pengembalian
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,7 +123,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
-                <div class="card-header pb-0">
+                <div class="card-header pb-2 pb-md-0">
                     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
                         <div>
                             <h5 class="mb-0 font-weight-bolder">Riwayat Pengembalian Barang</h5>
@@ -91,7 +139,7 @@
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
 
-                        <div class="col-lg-6 col-md-6 col-12">
+                        <div class="col-12 col-md-6 col-lg-6">
                             <input
                                 type="text"
                                 name="search"
@@ -101,7 +149,7 @@
                             >
                         </div>
 
-                        <div class="col-lg-4 col-md-4 col-sm-6 col-12">
+                        <div class="col-12 col-sm-7 col-md-4 col-lg-4">
                             <select name="condition" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Kondisi Saat Kembali</option>
                                 <option value="baik" @selected($condition === 'baik')>Baik</option>
@@ -110,7 +158,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-2 col-md-2 col-sm-6 col-12 d-flex gap-2">
+                        <div class="col-12 col-sm-5 col-md-2 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
                             @if ($hasFilters)
                                 <a href="{{ route('return-logs.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
@@ -120,7 +168,10 @@
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
-                    <div class="table-responsive p-0">
+                    <x-table-toolbar :paginator="$returnLogs" />
+
+                    {{-- Tampilan Tabel Desktop (>= 768px) --}}
+                    <div class="table-responsive p-0 d-none d-md-block">
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>
@@ -199,10 +250,73 @@
                         </table>
                     </div>
 
+                    {{-- Tampilan Kartu Mobile (< 768px) --}}
+                    <div class="mobile-table-cards d-md-none">
+                        @forelse ($returnLogs as $returnLog)
+                            @php
+                                $conditionBadge = match ($returnLog->condition_on_return) {
+                                    'baik' => 'success',
+                                    'rusak ringan' => 'warning',
+                                    'rusak berat' => 'danger',
+                                    default => 'secondary',
+                                };
+                            @endphp
+                            <div class="mobile-row-card">
+                                <div class="mobile-row-header">
+                                    <div class="mobile-row-header-main">
+                                        <span class="mobile-row-caption">Barang Dikembalikan</span>
+                                        <h6 class="mobile-row-title">
+                                            <a href="{{ route('return-logs.show', $returnLog) }}">
+                                                {{ $returnLog->loan?->item?->name ?? '-' }}
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <span class="badge badge-sm bg-gradient-{{ $conditionBadge }} flex-shrink-0">
+                                        {{ ucwords($returnLog->condition_on_return) }}
+                                    </span>
+                                </div>
+
+                                <div class="mobile-row-meta">
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Peminjam</span>
+                                        <span class="mobile-field-value">{{ $returnLog->loan?->user?->name ?? '-' }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Kode Barang</span>
+                                        <span class="mobile-field-value">{{ $returnLog->loan?->item?->code ?? '-' }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Jumlah</span>
+                                        <span class="mobile-field-value">{{ number_format($returnLog->loan?->quantity ?? 0, 0, ',', '.') }} unit</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Tanggal Kembali</span>
+                                        <span class="mobile-field-value">{{ $returnLog->returned_at?->translatedFormat('d M Y') }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Catatan Admin</span>
+                                        <span class="mobile-field-value">{{ $returnLog->notes ?: '-' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="mobile-row-actions">
+                                    <a href="{{ route('return-logs.show', $returnLog) }}" class="btn mobile-btn-detail">
+                                        Lihat Detail Pengembalian
+                                    </a>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="mobile-empty-state">
+                                <p class="text-sm text-secondary mb-0">
+                                    {{ $hasFilters ? 'Tidak ada data pengembalian yang cocok dengan filter Anda.' : 'Belum ada data pengembalian barang yang tercatat.' }}
+                                </p>
+                            </div>
+                        @endforelse
+                    </div>
+
                     <x-table-pagination :paginator="$returnLogs" />
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
-

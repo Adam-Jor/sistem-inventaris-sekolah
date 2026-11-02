@@ -26,7 +26,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
-                <div class="card-header pb-0">
+                <div class="card-header pb-2 pb-md-0">
                     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
                         <div>
                             <h5 class="mb-0 font-weight-bolder">Riwayat Aktivitas Sistem (Audit Trail)</h5>
@@ -45,7 +45,7 @@
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
 
-                        <div class="col-lg-4 col-md-6 col-12">
+                        <div class="col-12 col-md-6 col-lg-4">
                             <input
                                 type="text"
                                 name="search"
@@ -55,7 +55,7 @@
                             >
                         </div>
 
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                        <div class="col-6 col-md-3 col-lg-3">
                             <select name="user_id" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Pengguna</option>
                                 @foreach ($users as $userOption)
@@ -66,7 +66,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                        <div class="col-6 col-md-3 col-lg-3">
                             <select name="action" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Jenis Aksi</option>
                                 @foreach ($actions as $actionOption)
@@ -77,7 +77,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-2 col-md-12 col-12 d-flex gap-2">
+                        <div class="col-12 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
                             @if ($hasFilters)
                                 <a href="{{ route('activity-logs.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
@@ -87,7 +87,10 @@
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
-                    <div class="table-responsive p-0">
+                    <x-table-toolbar :paginator="$logs" />
+
+                    {{-- Tampilan Tabel Desktop (>= 768px) --}}
+                    <div class="table-responsive p-0 d-none d-md-block">
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>
@@ -163,10 +166,60 @@
                         </table>
                     </div>
 
+                    {{-- Tampilan Kartu Mobile (< 768px) --}}
+                    <div class="mobile-table-cards d-md-none">
+                        @forelse ($logs as $log)
+                            @php
+                                $badgeColor = match (true) {
+                                    str_starts_with($log->action, 'create_'), $log->action === 'verify_loan', $log->action === 'return_loan' => 'success',
+                                    str_starts_with($log->action, 'update_'), $log->action === 'request_loan' => 'info',
+                                    str_starts_with($log->action, 'delete_'), $log->action === 'reject_loan' => 'danger',
+                                    $log->action === 'login', $log->action === 'register' => 'primary',
+                                    default => 'secondary',
+                                };
+                            @endphp
+                            <div class="mobile-row-card">
+                                <div class="mobile-row-header">
+                                    <div class="mobile-row-header-main">
+                                        <span class="mobile-row-caption">Pelaku Aktivitas</span>
+                                        <h6 class="mobile-row-title">
+                                            {{ $log->user?->name ?? 'Sistem / User Terhapus' }}
+                                        </h6>
+                                    </div>
+                                    <span class="badge badge-sm bg-gradient-{{ $badgeColor }} flex-shrink-0">
+                                        {{ $actionLabels[$log->action] ?? $log->action }}
+                                    </span>
+                                </div>
+
+                                <div class="mobile-row-meta">
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Waktu</span>
+                                        <span class="mobile-field-value">
+                                            {{ $log->created_at?->translatedFormat('d M Y') }}, {{ $log->created_at?->format('H:i:s') }} WIB
+                                        </span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Deskripsi</span>
+                                        <span class="mobile-field-value">{{ $log->description }}</span>
+                                    </div>
+                                    <div class="mobile-row-field">
+                                        <span class="mobile-field-label">Alamat IP</span>
+                                        <span class="mobile-field-value">{{ $log->ip_address ?: '-' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="mobile-empty-state">
+                                <p class="text-sm text-secondary mb-0">
+                                    {{ $hasFilters ? 'Tidak ada activity log yang cocok dengan filter Anda.' : 'Belum ada data aktivitas yang tercatat.' }}
+                                </p>
+                            </div>
+                        @endforelse
+                    </div>
+
                     <x-table-pagination :paginator="$logs" />
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
-

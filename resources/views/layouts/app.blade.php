@@ -20,19 +20,19 @@
     <!-- CSS & Alpine.js aplikasi -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="g-sidenav-show bg-gray-100">
+<body class="g-sidenav-show bg-gray-100 role-{{ auth()->user()->role }}">
     @include('layouts.partials.sidebar')
 
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
         @include('layouts.partials.navbar')
 
-        <div class="container-fluid py-4">
+        <div class="container-fluid px-3 px-md-4 py-3 py-md-4">
             <x-flash-message />
 
             {{ $slot }}
 
             <footer class="footer pt-4">
-                <div class="container-fluid">
+                <div class="container-fluid px-0">
                     <p class="text-sm text-secondary text-center text-lg-start mb-0">
                         &copy; {{ now()->year }} {{ config('app.name') }}
                     </p>
@@ -40,6 +40,8 @@
             </footer>
         </div>
     </main>
+
+    @includeWhen(auth()->user()->isUser(), 'layouts.partials.mobile-bottom-nav')
 
     <!-- Soft UI Dashboard JS -->
     <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>

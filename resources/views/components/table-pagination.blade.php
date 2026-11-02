@@ -1,56 +1,24 @@
 @props([
     'paginator',
-    'options' => \App\Http\Controllers\Controller::PER_PAGE_OPTIONS,
 ])
 
 @if ($paginator->total() > 0)
     @php
-        $queryParams = collect(request()->query())->except(['page', 'per_page'])->all();
         $currentPage = $paginator->currentPage();
         $lastPage = $paginator->lastPage();
         $startPage = max(1, $currentPage - 2);
         $endPage = min($lastPage, $currentPage + 2);
     @endphp
 
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 px-4 pt-3 pb-2 border-top mt-2">
-        <div class="d-flex flex-wrap align-items-center gap-2">
-            <form method="GET" action="{{ url()->current() }}" class="d-inline-flex align-items-center gap-2 mb-0">
-                @foreach ($queryParams as $key => $value)
-                    @if (is_array($value))
-                        @foreach ($value as $nestedValue)
-                            <input type="hidden" name="{{ $key }}[]" value="{{ $nestedValue }}">
-                        @endforeach
-                    @elseif ($value !== null && $value !== '')
-                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                    @endif
-                @endforeach
-
-                <label for="per-page-select" class="text-xs text-secondary font-weight-normal mb-0">Tampilkan</label>
-                <select
-                    id="per-page-select"
-                    name="per_page"
-                    class="form-select form-select-sm py-1 ps-2 pe-4 bg-white"
-                    style="width: auto; min-width: 68px;"
-                    onchange="this.form.submit()"
-                >
-                    @foreach ($options as $option)
-                        <option value="{{ $option }}" @selected((int) $paginator->perPage() === (int) $option)>
-                            {{ $option }}
-                        </option>
-                    @endforeach
-                </select>
-                <span class="text-xs text-secondary">data</span>
-            </form>
-
-            <span class="text-xs text-secondary ms-md-2">
-                Menampilkan <strong>{{ number_format($paginator->firstItem() ?? 0, 0, ',', '.') }}&ndash;{{ number_format($paginator->lastItem() ?? 0, 0, ',', '.') }}</strong>
-                dari <strong>{{ number_format($paginator->total(), 0, ',', '.') }}</strong> data
-            </span>
-        </div>
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 px-3 px-md-4 pt-3 pb-2 border-top mt-0">
+        <span class="text-xs text-secondary text-center text-md-start">
+            Menampilkan <strong class="text-dark">{{ number_format($paginator->firstItem() ?? 0, 0, ',', '.') }}&ndash;{{ number_format($paginator->lastItem() ?? 0, 0, ',', '.') }}</strong>
+            dari <strong class="text-dark">{{ number_format($paginator->total(), 0, ',', '.') }}</strong> data
+        </span>
 
         @if ($paginator->hasPages())
             <nav aria-label="Navigasi halaman">
-                <ul class="pagination pagination-primary justify-content-md-end mb-0">
+                <ul class="pagination app-pagination pagination-primary justify-content-center justify-content-md-end mb-0">
                     {{-- Tombol Sebelumnya --}}
                     @if ($paginator->onFirstPage())
                         <li class="page-item disabled" aria-disabled="true">
@@ -78,7 +46,7 @@
                     @for ($page = $startPage; $page <= $endPage; $page++)
                         @if ($page === $currentPage)
                             <li class="page-item active" aria-current="page">
-                                <span class="page-link text-white">{{ $page }}</span>
+                                <span class="page-link">{{ $page }}</span>
                             </li>
                         @else
                             <li class="page-item">
@@ -114,4 +82,3 @@
         @endif
     </div>
 @endif
-

@@ -388,3 +388,431 @@ td.text-center > .badge {
         font-size: 0.85rem;
     }
 }
+
+/* ==========================================================================
+   5. Responsive Mobile Table Cards (< 768px / d-md-none)
+      Mengubah baris tabel menjadi kartu bertumpuk bergaya modern di mobile
+   ========================================================================== */
+.mobile-table-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 0.875rem;
+    background-color: #f8fafc;
+    border-top: 1px solid #eef2f6;
+}
+
+.mobile-row-card {
+    background-color: #ffffff;
+    border: 1px solid #e6ecf5;
+    border-radius: 0.875rem;
+    padding: 1rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.mobile-row-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.7rem;
+}
+
+.mobile-row-header-main {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.mobile-row-caption {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #64748b;
+    line-height: 1.25;
+    margin-bottom: 0.15rem;
+}
+
+.mobile-row-title {
+    font-size: 0.975rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.3;
+    margin: 0;
+    word-break: break-word;
+}
+
+.mobile-row-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.mobile-row-title a:hover {
+    color: #2563eb;
+}
+
+.mobile-row-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-row-field {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.85rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid #f1f5f9;
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+
+.mobile-field-label {
+    color: #64748b;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.mobile-field-value {
+    color: #1e293b;
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+    min-width: 0;
+}
+
+.mobile-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.65rem;
+    padding-top: 0.2rem;
+}
+
+.mobile-row-actions > .btn,
+.mobile-row-actions > form {
+    flex: 1 1 calc(50% - 0.25rem);
+    margin-bottom: 0 !important;
+}
+
+.mobile-row-actions > form > .btn {
+    width: 100%;
+    margin-bottom: 0 !important;
+}
+
+.mobile-row-actions .btn {
+    min-height: 2.375rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: -0.005em;
+    border-radius: 0.55rem !important;
+    padding: 0.475rem 0.85rem !important;
+}
+
+/* Tombol outline detail penuh ala "View Offer Details" / "View Details" */
+.btn.mobile-btn-detail {
+    background: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #d8e1ef !important;
+    color: #2563eb !important;
+    box-shadow: none !important;
+}
+
+.btn.mobile-btn-detail:hover,
+.btn.mobile-btn-detail:focus {
+    background-color: #eff6ff !important;
+    border-color: #93c5fd !important;
+    color: #1d4ed8 !important;
+    transform: none;
+}
+
+.mobile-empty-state {
+    background-color: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 0.875rem;
+    padding: 2rem 1.25rem;
+    text-align: center;
+}
+
+/* ==========================================================================
+   6. Mobile-First Experience & Sticky Bottom Nav Khusus Role User
+   ========================================================================== */
+.app-mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1035;
+    background-color: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid #e6ebf2;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.06);
+    padding: 0.35rem 0.35rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+}
+
+.app-mobile-bottom-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.app-mobile-bottom-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.35rem 0.2rem;
+    border-radius: 0.65rem;
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.1;
+    text-decoration: none;
+    transition: color 0.16s ease, background-color 0.16s ease;
+}
+
+.app-mobile-bottom-link svg {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+}
+
+.app-mobile-bottom-link:hover,
+.app-mobile-bottom-link:focus {
+    color: #2563eb;
+}
+
+.app-mobile-bottom-link.active {
+    color: #2563eb;
+    background-color: #eff6ff;
+}
+
+.app-mobile-bottom-link-cta {
+    color: #1e293b;
+}
+
+.app-mobile-bottom-cta-icon {
+    width: 34px;
+    height: 28px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.28);
+}
+
+.app-mobile-bottom-link-cta.active {
+    background-color: transparent;
+    color: #2563eb;
+}
+
+@media (min-width: 576px) {
+    .w-sm-auto {
+        width: auto !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .w-md-auto {
+        width: auto !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    /* Ruang aman di bawah layar agar konten & pagination tidak tertutup bottom nav User */
+    body.role-user {
+        padding-bottom: 4.75rem;
+    }
+
+    /* Ukuran input ramah sentuhan & cegah auto-zoom iOS di layar mobile */
+    body.role-user .form-control,
+    body.role-user .form-select:not(.app-per-page-select) {
+        font-size: 1rem !important;
+        min-height: 2.65rem;
+    }
+
+    body.role-user .btn:not(.btn-xs) {
+        min-height: 2.55rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Kartu statistik 2 kolom di mobile agar ringkas dan tetap proporsional */
+    .user-stat-card .card-body {
+        padding: 0.9rem !important;
+    }
+
+    .user-stat-card .icon-shape {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    .user-stat-card h4 {
+        font-size: 1.25rem;
+        margin-top: 0.65rem !important;
+    }
+
+    .user-stat-card .user-stat-label {
+        font-size: 0.76rem !important;
+        line-height: 1.25;
+        display: block;
+    }
+}
+
+/* ==========================================================================
+   7. Toolbar Atas Tabel (Pilih Jumlah Data) & Pagination Biru Gaya Sidebar
+   ========================================================================== */
+.app-table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    padding: 0.2rem 1.5rem 0.7rem;
+}
+
+.app-per-page-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+}
+
+.app-per-page-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #64748b;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.form-select.app-per-page-select {
+    width: auto !important;
+    min-width: 3.9rem;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    padding: 0.2rem 1.8rem 0.2rem 0.65rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+    color: #2563eb !important;
+    background-color: #eff6ff !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.55rem center !important;
+    background-size: 11px 11px !important;
+    border: 1px solid #bfdbfe !important;
+    border-radius: 0.5rem !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.form-select.app-per-page-select:hover,
+.form-select.app-per-page-select:focus {
+    background-color: #dbeafe !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    outline: none;
+}
+
+.form-select.app-per-page-select option {
+    background-color: #ffffff;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.app-table-summary {
+    font-size: 0.76rem;
+    font-weight: 500;
+    color: #64748b;
+    background-color: #f8fafc;
+    border: 1px solid #e6ecf5;
+    border-radius: 9999px;
+    padding: 0.22rem 0.75rem;
+    white-space: nowrap;
+}
+
+.app-table-summary strong {
+    color: #1e293b;
+    font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+    .app-table-toolbar {
+        padding: 0.15rem 0.875rem 0.65rem;
+    }
+
+    .form-select.app-per-page-select {
+        height: 2.1rem !important;
+        min-height: 2.1rem !important;
+        font-size: 0.825rem !important;
+    }
+}
+
+/* Pagination Warna Biru Sesuai Gaya Sidebar Aktif */
+.pagination.app-pagination,
+.pagination.pagination-primary {
+    gap: 0.3rem;
+}
+
+.pagination.app-pagination .page-item .page-link,
+.pagination.pagination-primary .page-item .page-link {
+    margin: 0 !important;
+    min-width: 2.25rem;
+    width: auto;
+    height: 2.25rem;
+    padding: 0 0.55rem;
+    border-radius: 9999px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #475569 !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.pagination.app-pagination .page-item:not(.active):not(.disabled) .page-link:hover,
+.pagination.app-pagination .page-item:not(.active):not(.disabled) .page-link:focus,
+.pagination.pagination-primary .page-item:not(.active):not(.disabled) .page-link:hover,
+.pagination.pagination-primary .page-item:not(.active):not(.disabled) .page-link:focus {
+    background-color: #eff6ff !important;
+    border-color: #bfdbfe !important;
+    color: #2563eb !important;
+    transform: translateY(-1px);
+}
+
+.pagination.app-pagination .page-item.active .page-link,
+.pagination.pagination-primary .page-item.active .page-link {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    background-color: #2563eb !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.pagination.app-pagination .page-item.disabled .page-link,
+.pagination.pagination-primary .page-item.disabled .page-link {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #cbd5e1 !important;
+    opacity: 1 !important;
+}
