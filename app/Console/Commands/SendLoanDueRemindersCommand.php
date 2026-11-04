@@ -61,7 +61,7 @@ class SendLoanDueRemindersCommand extends Command
         $overdueCount = 0;
 
         foreach ($loans as $loan) {
-            if (! $loan->user) {
+            if (! $loan->user || ! $loan->user->hasDeliverableEmail()) {
                 continue;
             }
 

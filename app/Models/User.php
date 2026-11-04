@@ -50,4 +50,29 @@ class User extends Authenticatable
     {
         return $this->role === 'user';
     }
+
+    /**
+     * Cek apakah alamat email user dapat menerima email eksternal
+     * (mengabaikan domain dummy RFC 2606 seperti .test saat menggunakan SMTP asli).
+     */
+    public function hasDeliverableEmail(): bool
+    {
+        if (! $this->email || ! filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        if (app()->runningUnitTests() || in_array(config('mail.default'), ['log', 'array'], true)) {
+            return true;
+        }
+
+        $lowerEmail = strtolower($this->email);
+
+        foreach (['.test', '.example', '.invalid', '.localhost'] as $reservedTld) {
+            if (str_ends_with($lowerEmail, $reservedTld)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

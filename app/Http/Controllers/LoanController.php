@@ -235,6 +235,13 @@ class LoanController extends Controller
             return back()->with('error', 'Peminjam tidak memiliki alamat email yang valid.');
         }
 
+        if (! $loan->user->hasDeliverableEmail()) {
+            return back()->with(
+                'error',
+                "Alamat email peminjam ({$loan->user->email}) menggunakan domain dummy (.test) sehingga tidak dapat dikirim ke internet. Gunakan akun peminjam dengan email asli."
+            );
+        }
+
         $type = $loan->isOverdue() ? 'overdue' : 'approaching';
         $loan->user->notify(new LoanDueReminderNotification($loan, $type));
         $loan->forceFill(['reminder_sent_at' => now()])->save();
@@ -283,7 +290,7 @@ class LoanController extends Controller
         $overdueCount = 0;
 
         foreach ($loans as $loan) {
-            if (! $loan->user || ! $loan->user->email) {
+            if (! $loan->user || ! $loan->user->hasDeliverableEmail()) {
                 continue;
             }
 
