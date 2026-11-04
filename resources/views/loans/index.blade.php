@@ -19,8 +19,17 @@
                             </p>
                         </div>
 
-                        <div class="w-100 w-md-auto">
-                            <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-primary mb-0 w-100 w-md-auto">
+                        <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 w-100 w-md-auto">
+                            @if ($isAdmin)
+                                <form method="POST" action="{{ route('loans.notify-due') }}" class="m-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-primary mb-0 w-100 w-sm-auto" title="Kirim notifikasi email untuk peminjaman yang mendekati (H-1/Hari-H) atau melewati jatuh tempo">
+                                        Kirim Email Jatuh Tempo
+                                    </button>
+                                </form>
+                            @endif
+
+                            <a href="{{ route('loans.create') }}" class="btn btn-sm bg-gradient-primary mb-0 w-100 w-sm-auto">
                                 + Ajukan Peminjaman
                             </a>
                         </div>

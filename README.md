@@ -1,58 +1,143 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Inventaris & Peminjaman Barang Sekolah
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web berbasis **Laravel 13** untuk mengelola inventaris barang milik sekolah (laboratorium, olahraga, elektronik, kebersihan), memfasilitasi pengajuan serta verifikasi peminjaman oleh guru dan siswa, mencatat pengembalian barang, memantau statistik peminjaman, mengirimkan notifikasi email jatuh tempo, dan merekam jejak aktivitas (*audit trail*).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Autentikasi & Pembagian Role (`admin` & `user`):**
+  - **Admin (Petugas Inventaris):** Mengelola kategori, barang, verifikasi pengajuan peminjaman (setujui/tolak), pencatatan pengembalian, pengiriman pengingat email jatuh tempo, manajemen pengguna, dashboard statistik, dan *activity log*.
+  - **User (Guru & Siswa):** Melihat katalog barang yang tersedia, mengajukan peminjaman barang, dan memantau riwayat peminjaman milik sendiri dengan tampilan *mobile-first* (dilengkapi navigasi bawah di layar ponsel).
+- **Manajemen Master Data:**
+  - CRUD **Kategori Barang** (dilengkapi proteksi penghapusan jika kategori masih memiliki barang).
+  - CRUD **Data Barang** dengan kode unik, stok, kondisi (`baik`, `rusak ringan`, `rusak berat`), pencarian, filter kategori/kondisi, *soft delete*, dan *pagination* dinamis (`10`, `25`, `50`, `100` data).
+- **Alur Transaksi Peminjaman & Pengembalian Otomatis:**
+  - Pengajuan peminjaman berstatus awal `menunggu` dengan validasi stok dan tanggal.
+  - Persetujuan Admin otomatis mengurangi stok barang secara *atomic* (`DB::transaction` + `lockForUpdate`).
+  - Peminjaman aktif yang melewati batas tanggal kembali (`due_date`) otomatis ditandai `terlambat`.
+  - Pencatatan pengembalian otomatis mengembalikan stok barang dan memperbarui kondisi barang jika dikembalikan dalam keadaan rusak.
+- **Notifikasi Email Jatuh Tempo & Keterlambatan:**
+  - Mengirimkan email pengingat untuk peminjaman yang mendekati jatuh tempo (**H-1 / Hari-H**) maupun peringatan untuk peminjaman yang telah melewati jatuh tempo (**Terlambat**), baik secara terjadwal (`loans:send-due-reminders`) maupun manual melalui tombol di halaman Admin.
+- **Dashboard Statistik & Audit Trail (*Activity Log*):**
+  - Analisis barang paling sering dipinjam, peminjam paling aktif, kategori terpopuler, keterlambatan pengembalian, tren 6 bulan terakhir, kondisi inventaris, serta stok menipis.
+  - Pencatatan otomatis setiap aktivitas penting beserta pelaku, waktu, dan alamat IP.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Teknologi yang Digunakan
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Komponen | Teknologi |
+|---|---|
+| **Backend Framework** | Laravel 13 (PHP 8.3+) |
+| **Autentikasi** | Laravel Breeze (Blade + Alpine.js) |
+| **Database** | MySQL |
+| **UI Template** | Soft UI Dashboard (Bootstrap 5) + Custom Responsive CSS |
+| **Asset Bundler** | Vite |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Prasyarat Sistem
 
-## Agentic Development
+Pastikan perangkat Anda telah terpasang:
+- **PHP** >= 8.3 (beserta ekstensi `pdo_mysql`, `mbstring`, `openssl`, `xml`, `ctype`, `json`)
+- **Composer** >= 2.x
+- **Node.js** >= 18.x & **NPM**
+- **MySQL** >= 8.0 atau **MariaDB** (misalnya melalui Laragon / XAMPP)
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
+## Cara Instalasi
+
+Ikuti langkah-langkah berikut untuk menjalankan proyek di komputer lokal:
+
+### 1. Clone Repository
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <url-repository-anda> sistem-inventaris-sekolah
+cd sistem-inventaris-sekolah
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Install Dependensi PHP & Frontend
+```bash
+composer install
+npm install
+```
 
-## Contributing
+### 3. Salin File Environment & Generate App Key
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+*(Di Windows PowerShell/CMD, Anda juga dapat menggunakan `copy .env.example .env`).*
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 4. Konfigurasi Database & Email di `.env`
+Buat database baru di MySQL (contoh: `sistem_inventaris_sekolah`), lalu sesuaikan konfigurasi pada file `.env`:
 
-## Code of Conduct
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sistem_inventaris_sekolah
+DB_USERNAME=root
+DB_PASSWORD=
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Konfigurasi Email (gunakan 'log' untuk pengembangan lokal atau SMTP untuk produksi)
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="inventaris@sekolah.test"
+MAIL_FROM_NAME="${APP_NAME}"
+```
 
-## Security Vulnerabilities
+### 5. Jalankan Migrasi Database & Seeder
+Jalankan perintah berikut untuk membuat seluruh tabel beserta data contoh awal:
+```bash
+php artisan migrate:fresh --seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 6. Build Aset Frontend & Jalankan Server
+```bash
+npm run build
+php artisan serve
+```
+Akses aplikasi melalui browser di alamat: **http://127.0.0.1:8000**
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Kredensial Akun Seeder (Testing)
+
+Setelah menjalankan `php artisan migrate:fresh --seed`, Anda dapat langsung login menggunakan akun berikut:
+
+| Nama Pengguna | Email | Password | Role | Keterangan Akses |
+|---|---|---|---|---|
+| **Admin Inventaris** | `admin@sekolah.test` | `password` | `admin` | Akses penuh (Master Data, Verifikasi Peminjaman, Pengembalian, Statistik, User, Activity Log) |
+| **Budi Santoso** | `budi@sekolah.test` | `password` | `user` | Akun contoh Guru (Katalog Barang, Ajukan Peminjaman, Riwayat Peminjaman Saya) |
+| **Siti Rahmawati** | `siti@sekolah.test` | `password` | `user` | Akun contoh Siswa (Katalog Barang, Ajukan Peminjaman, Riwayat Peminjaman Saya) |
+
+### Ringkasan Data Awal yang Dibuat Seeder
+- **3 Akun Pengguna:** 1 Admin (`admin@sekolah.test`) dan 2 User (`budi@sekolah.test`, `siti@sekolah.test`).
+- **4 Kategori Barang:** Alat Laboratorium, Alat Olahraga, Elektronik, dan Alat Kebersihan.
+- **12 Barang Inventaris:** Tersebar di 4 kategori dengan variasi stok dan kondisi (`baik`, `rusak ringan`, `rusak berat`).
+- **7 Transaksi Peminjaman:** Mencakup seluruh variasi status (`dikembalikan`, `dipinjam`, `terlambat`, `menunggu`, dan `ditolak`).
+- **3 Data Pengembalian (`return_logs`):** Sesuai dengan 3 transaksi yang telah berstatus `dikembalikan`.
+- **Data Activity Log:** Contoh jejak aktivitas awal di sistem.
+
+---
+
+## Perintah Tambahan & Pengujian
+
+### Mengirim Notifikasi Email Jatuh Tempo / Keterlambatan via CLI
+Selain melalui tombol **"Kirim Email Jatuh Tempo"** di halaman Admin, Anda dapat menjalankan perintah Artisan berikut secara manual atau melalui penjadwalan (*scheduler*):
+```bash
+# Kirim email pengingat (H-1 & Hari-H) serta peringatan keterlambatan
+php artisan loans:send-due-reminders
+
+# Opsi tambahan: ubah rentang hari H-N atau paksa kirim ulang di hari yang sama
+php artisan loans:send-due-reminders --days=2 --force
+
+# Menjalankan worker penjadwalan otomatis (dijadwalkan setiap hari pukul 07:00)
+php artisan schedule:work
+```
+
+### Menjalankan Pengujian Otomatis (Automated Tests)
+```bash
+php artisan test
+```

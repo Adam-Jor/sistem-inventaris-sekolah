@@ -61,6 +61,12 @@
                                 {{ $loan->due_date?->translatedFormat('d M Y') }}
                             </span>
                         </li>
+                        <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
+                            <span class="text-secondary">Pengingat Email Terakhir</span>
+                            <span class="font-weight-bold text-dark">
+                                {{ $loan->reminder_sent_at ? $loan->reminder_sent_at->translatedFormat('d M Y, H:i').' WIB' : 'Belum pernah dikirim' }}
+                            </span>
+                        </li>
                         <li class="list-group-item px-0 d-flex flex-column text-sm">
                             <span class="text-secondary mb-1">Catatan / Keperluan</span>
                             <p class="text-dark mb-0" style="white-space: pre-line;">{{ $loan->notes ?: '-' }}</p>
@@ -120,6 +126,13 @@
                                         </form>
                                     </x-modal>
                                 @elseif (in_array($loan->status, ['dipinjam', 'terlambat'], true))
+                                    <form method="POST" action="{{ route('loans.notify', $loan) }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-primary mb-0">
+                                            Kirim Email Pengingat
+                                        </button>
+                                    </form>
+
                                     <a href="{{ route('loans.return.create', $loan) }}" class="btn btn-sm bg-gradient-info mb-0">
                                         Catat Pengembalian
                                     </a>

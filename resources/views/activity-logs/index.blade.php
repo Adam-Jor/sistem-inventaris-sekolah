@@ -15,6 +15,7 @@
         'verify_loan' => 'Setujui Peminjaman',
         'reject_loan' => 'Tolak Peminjaman',
         'return_loan' => 'Catat Pengembalian',
+        'notify_loan' => 'Kirim Pengingat Email',
         'delete_loan' => 'Hapus Peminjaman',
         'create_user' => 'Tambah User',
         'update_user' => 'Ubah User',
@@ -109,6 +110,7 @@
                                             str_starts_with($log->action, 'create_'), $log->action === 'verify_loan', $log->action === 'return_loan' => 'success',
                                             str_starts_with($log->action, 'update_'), $log->action === 'request_loan' => 'info',
                                             str_starts_with($log->action, 'delete_'), $log->action === 'reject_loan' => 'danger',
+                                            $log->action === 'notify_loan' => 'warning',
                                             $log->action === 'login', $log->action === 'register' => 'primary',
                                             default => 'secondary',
                                         };
@@ -174,6 +176,7 @@
                                     str_starts_with($log->action, 'create_'), $log->action === 'verify_loan', $log->action === 'return_loan' => 'success',
                                     str_starts_with($log->action, 'update_'), $log->action === 'request_loan' => 'info',
                                     str_starts_with($log->action, 'delete_'), $log->action === 'reject_loan' => 'danger',
+                                    $log->action === 'notify_loan' => 'warning',
                                     $log->action === 'login', $log->action === 'register' => 'primary',
                                     default => 'secondary',
                                 };

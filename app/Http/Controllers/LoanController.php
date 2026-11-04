@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreLoanRequest;
 use App\Models\Item;
 use App\Models\Loan;
+use App\Notifications\LoanDueReminderNotification;
 use App\Services\ActivityLogger;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -215,5 +217,104 @@ class LoanController extends Controller
         return redirect()
             ->route('loans.index')
             ->with('success', 'Data peminjaman berhasil dihapus.');
+    }
+
+    /**
+     * Admin mengirim email pengingat jatuh tempo / keterlambatan untuk satu peminjaman aktif.
+     */
+    public function sendNotification(Loan $loan): RedirectResponse
+    {
+        Loan::syncOverdueStatuses();
+        $loan->refresh()->load(['user', 'item']);
+
+        if (! in_array($loan->status, ['dipinjam', 'terlambat'], true)) {
+            return back()->with('error', 'Pengingat email hanya dapat dikirim untuk peminjaman berstatus dipinjam atau terlambat.');
+        }
+
+        if (! $loan->user || ! $loan->user->email) {
+            return back()->with('error', 'Peminjam tidak memiliki alamat email yang valid.');
+        }
+
+        $type = $loan->isOverdue() ? 'overdue' : 'approaching';
+        $loan->user->notify(new LoanDueReminderNotification($loan, $type));
+        $loan->forceFill(['reminder_sent_at' => now()])->save();
+
+        $itemName = $loan->item?->name ?? 'Barang';
+        $label = $type === 'overdue' ? 'peringatan keterlambatan' : 'pengingat jatuh tempo';
+
+        ActivityLogger::log(
+            'notify_loan',
+            "Mengirim email {$label} peminjaman {$itemName} kepada {$loan->user->name} ({$loan->user->email})."
+        );
+
+        return back()->with(
+            'success',
+            "Email {$label} untuk \"{$itemName}\" berhasil dikirim ke {$loan->user->name} ({$loan->user->email})."
+        );
+    }
+
+    /**
+     * Admin mengirim email pengingat massal untuk seluruh peminjaman yang mendekati (H-1/Hari-H) atau melewati jatuh tempo.
+     */
+    public function sendBulkDueNotifications(): RedirectResponse
+    {
+        Loan::syncOverdueStatuses();
+
+        $today = now()->toDateString();
+        $limitDate = now()->addDay()->toDateString();
+
+        $loans = Loan::query()
+            ->with(['user', 'item'])
+            ->where(function (Builder $query) use ($today, $limitDate) {
+                $query->where('status', 'terlambat')
+                    ->orWhere(function (Builder $sub) use ($today, $limitDate) {
+                        $sub->where('status', 'dipinjam')
+                            ->whereDate('due_date', '>=', $today)
+                            ->whereDate('due_date', '<=', $limitDate);
+                    });
+            })
+            ->where(function (Builder $query) use ($today) {
+                $query->whereNull('reminder_sent_at')
+                    ->orWhereDate('reminder_sent_at', '<', $today);
+            })
+            ->get();
+
+        $approachingCount = 0;
+        $overdueCount = 0;
+
+        foreach ($loans as $loan) {
+            if (! $loan->user || ! $loan->user->email) {
+                continue;
+            }
+
+            $type = $loan->isOverdue() ? 'overdue' : 'approaching';
+            $loan->user->notify(new LoanDueReminderNotification($loan, $type));
+            $loan->forceFill(['reminder_sent_at' => now()])->save();
+
+            if ($type === 'overdue') {
+                $overdueCount++;
+            } else {
+                $approachingCount++;
+            }
+        }
+
+        $totalSent = $approachingCount + $overdueCount;
+
+        if ($totalSent === 0) {
+            return back()->with(
+                'success',
+                'Tidak ada peminjaman mendekati/melewati jatuh tempo yang belum dikirimi email pengingat hari ini.'
+            );
+        }
+
+        ActivityLogger::log(
+            'notify_loan',
+            "Mengirim {$totalSent} email pengingat jatuh tempo ({$approachingCount} mendekati jatuh tempo, {$overdueCount} terlambat)."
+        );
+
+        return back()->with(
+            'success',
+            "Berhasil mengirim {$totalSent} email notifikasi ({$approachingCount} mendekati jatuh tempo, {$overdueCount} melewati jatuh tempo)."
+        );
     }
 }

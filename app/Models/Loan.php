@@ -21,6 +21,7 @@ class Loan extends Model
         'due_date',
         'status',
         'notes',
+        'reminder_sent_at',
     ];
 
     protected function casts(): array
@@ -29,6 +30,7 @@ class Loan extends Model
             'quantity' => 'integer',
             'loan_date' => 'date',
             'due_date' => 'date',
+            'reminder_sent_at' => 'datetime',
         ];
     }
 
@@ -100,6 +102,34 @@ class Loan extends Model
     public function scopeRejected(Builder $query): Builder
     {
         return $query->where('status', 'ditolak');
+    }
+
+    /**
+     * Scope untuk peminjaman aktif yang mendekati jatuh tempo (hari ini s/d H-N).
+     */
+    public function scopeApproachingDue(Builder $query, int $daysBefore = 1): Builder
+    {
+        $today = now()->toDateString();
+        $limitDate = now()->addDays(max(0, $daysBefore))->toDateString();
+
+        return $query->where('status', 'dipinjam')
+            ->whereDate('due_date', '>=', $today)
+            ->whereDate('due_date', '<=', $limitDate);
+    }
+
+    /**
+     * Cek apakah pinjaman ini sedang mendekati batas waktu pengembalian (hari ini s/d H-N).
+     */
+    public function isApproachingDue(int $daysBefore = 1): bool
+    {
+        if ($this->status !== 'dipinjam' || ! $this->due_date) {
+            return false;
+        }
+
+        $today = now()->startOfDay();
+        $limit = now()->addDays(max(0, $daysBefore))->endOfDay();
+
+        return $this->due_date->gte($today) && $this->due_date->lte($limit);
     }
 
     /**
