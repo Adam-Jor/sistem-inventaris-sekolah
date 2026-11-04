@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/apple-icon.png') }}">
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/logo-sekolah.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo-sekolah.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/img/logo-sekolah.png') }}">
 
     <title>{{ $title }} | {{ config('app.name') }}</title>
 
@@ -23,7 +24,7 @@
                 <nav class="navbar navbar-expand-lg blur blur-rounded top-0 z-index-3 shadow position-absolute my-2 my-sm-3 py-2 start-0 end-0 mx-2 mx-sm-4 px-2 px-sm-3">
                     <div class="container-fluid px-1 px-sm-2 flex-nowrap">
                         <a class="navbar-brand font-weight-bolder ms-lg-0 ms-1 me-2 text-truncate d-flex align-items-center" href="{{ url('/') }}">
-                            <img src="{{ asset('assets/img/logo-ct-dark.png') }}" alt="Logo" height="22" class="me-2">
+                            <img src="{{ asset('assets/img/logo-sekolah.png') }}" alt="Logo" height="24" class="me-2">
                             <span>{{ config('app.name') }}</span>
                         </a>
                         <div class="d-flex align-items-center ms-auto flex-shrink-0">

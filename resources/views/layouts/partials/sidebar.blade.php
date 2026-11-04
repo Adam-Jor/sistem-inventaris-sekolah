@@ -4,21 +4,22 @@
     // Daftar menu langsung ditampilkan seluruhnya tanpa pemisah seksi.
     if ($authUser->isAdmin()) {
         $menuItems = [
-            ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'match' => 'dashboard'],
-            ['label' => 'Kategori', 'icon' => 'categories', 'route' => 'categories.index', 'match' => 'categories.*'],
-            ['label' => 'Barang', 'icon' => 'items', 'route' => 'items.index', 'match' => 'items.*'],
-            ['label' => 'Peminjaman', 'icon' => 'loans', 'route' => 'loans.index', 'match' => 'loans.*'],
-            ['label' => 'Pengembalian', 'icon' => 'returns', 'route' => 'return-logs.index', 'match' => 'return-logs.*'],
-            ['label' => 'Activity Log', 'icon' => 'activity-logs', 'route' => 'activity-logs.index', 'match' => 'activity-logs.*'],
-            ['label' => 'Manajemen User', 'icon' => 'users', 'route' => 'users.index', 'match' => 'users.*'],
-            ['label' => 'Profil', 'icon' => 'profile', 'route' => 'profile.edit', 'match' => 'profile.*'],
+            ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard')],
+            ['label' => 'Statistik', 'icon' => 'statistics', 'route' => 'statistics.index', 'active' => request()->routeIs('statistics.*')],
+            ['label' => 'Kategori', 'icon' => 'categories', 'route' => 'categories.index', 'active' => request()->routeIs('categories.*')],
+            ['label' => 'Barang', 'icon' => 'items', 'route' => 'items.index', 'active' => request()->routeIs('items.*')],
+            ['label' => 'Peminjaman', 'icon' => 'loans', 'route' => 'loans.index', 'active' => request()->routeIs('loans.*') && ! request()->routeIs('loans.return.*')],
+            ['label' => 'Pengembalian', 'icon' => 'returns', 'route' => 'return-logs.index', 'active' => request()->routeIs('return-logs.*') || request()->routeIs('loans.return.*')],
+            ['label' => 'Activity Log', 'icon' => 'activity-logs', 'route' => 'activity-logs.index', 'active' => request()->routeIs('activity-logs.*')],
+            ['label' => 'Manajemen User', 'icon' => 'users', 'route' => 'users.index', 'active' => request()->routeIs('users.*')],
+            ['label' => 'Profil', 'icon' => 'profile', 'route' => 'profile.edit', 'active' => request()->routeIs('profile.*')],
         ];
     } else {
         $menuItems = [
-            ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'match' => 'dashboard'],
-            ['label' => 'Daftar Barang', 'icon' => 'items', 'route' => 'items.index', 'match' => 'items.*'],
-            ['label' => 'Peminjaman Saya', 'icon' => 'loans', 'route' => 'loans.index', 'match' => 'loans.*'],
-            ['label' => 'Profil', 'icon' => 'profile', 'route' => 'profile.edit', 'match' => 'profile.*'],
+            ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard')],
+            ['label' => 'Daftar Barang', 'icon' => 'items', 'route' => 'items.index', 'active' => request()->routeIs('items.*')],
+            ['label' => 'Peminjaman Saya', 'icon' => 'loans', 'route' => 'loans.index', 'active' => request()->routeIs('loans.*')],
+            ['label' => 'Profil', 'icon' => 'profile', 'route' => 'profile.edit', 'active' => request()->routeIs('profile.*')],
         ];
     }
 @endphp
@@ -29,7 +30,7 @@
         <i class="ni ni-fat-remove p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
 
         <a class="navbar-brand m-0 d-flex align-items-center gap-2" href="{{ route('dashboard') }}">
-            <img src="{{ asset('assets/img/logo-ct-dark.png') }}" class="navbar-brand-img" alt="Logo">
+            <img src="{{ asset('assets/img/logo-sekolah.png') }}" class="navbar-brand-img" alt="Logo">
             <span class="app-brand-text">{{ config('app.name') }}</span>
         </a>
     </div>
@@ -37,7 +38,7 @@
     <div class="app-sidenav-menu" id="sidenav-collapse-main">
         <ul class="navbar-nav">
             @foreach ($menuItems as $item)
-                @php $active = request()->routeIs($item['match']); @endphp
+                @php $active = $item['active']; @endphp
                 <li class="nav-item">
                     <a class="nav-link app-nav-link {{ $active ? 'active' : '' }}" href="{{ route($item['route']) }}">
                         @switch($item['icon'])
@@ -47,6 +48,13 @@
                                     <rect x="14" y="3" width="7" height="7" rx="2"></rect>
                                     <rect x="14" y="14" width="7" height="7" rx="2"></rect>
                                     <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+                                </svg>
+                                @break
+
+                            @case('statistics')
+                                <svg class="app-nav-icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                                    <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
                                 </svg>
                                 @break
 

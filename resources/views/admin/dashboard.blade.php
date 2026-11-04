@@ -14,6 +14,7 @@
                     <div class="d-flex flex-wrap gap-2 w-100 w-md-auto flex-shrink-0">
                         <a href="{{ route('items.index') }}" class="btn bg-gradient-primary mb-0 flex-fill flex-md-grow-0">Kelola Barang</a>
                         <a href="{{ route('loans.index') }}" class="btn btn-outline-primary mb-0 flex-fill flex-md-grow-0">Verifikasi Peminjaman</a>
+                        <a href="{{ route('statistics.index') }}" class="btn btn-outline-primary mb-0 flex-fill flex-md-grow-0">Lihat Statistik</a>
                     </div>
                 </div>
             </div>

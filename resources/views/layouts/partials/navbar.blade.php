@@ -5,23 +5,32 @@
 
 <nav class="navbar navbar-main navbar-expand-lg px-0 mx-2 mx-md-4 shadow-none border-radius-xl" id="navbarBlur" navbar-scroll="true">
     <div class="container-fluid py-1 px-2 px-sm-3 d-flex align-items-center justify-content-between gap-2">
-        <nav aria-label="breadcrumb" class="min-w-0">
-            <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-2 me-sm-5 flex-wrap">
-                <li class="breadcrumb-item text-sm">
-                    <a class="opacity-5 text-dark" href="{{ route('dashboard') }}">Beranda</a>
-                </li>
-                @foreach ($breadcrumbs as $label => $url)
-                    @if ($loop->last || ! $url)
-                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">{{ $label }}</li>
+        <div class="d-flex align-items-center min-w-0">
+            <a href="{{ route('dashboard') }}" class="d-inline-flex d-xl-none align-items-center me-2 me-sm-3 flex-shrink-0" title="{{ config('app.name') }}">
+                <img src="{{ asset('assets/img/logo-sekolah.png') }}" alt="Logo {{ config('app.name') }}" style="max-height: 2.1rem; width: auto;">
+            </a>
+            <nav aria-label="breadcrumb" class="min-w-0">
+                <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-2 me-sm-5 flex-wrap">
+                    @if (request()->routeIs('dashboard'))
+                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Beranda</li>
                     @else
                         <li class="breadcrumb-item text-sm">
-                            <a class="opacity-5 text-dark" href="{{ $url }}">{{ $label }}</a>
+                            <a class="opacity-5 text-dark" href="{{ route('dashboard') }}">Beranda</a>
                         </li>
+                        @foreach ($breadcrumbs as $label => $url)
+                            @if ($loop->last || ! $url)
+                                <li class="breadcrumb-item text-sm text-dark active" aria-current="page">{{ $label }}</li>
+                            @else
+                                <li class="breadcrumb-item text-sm">
+                                    <a class="opacity-5 text-dark" href="{{ $url }}">{{ $label }}</a>
+                                </li>
+                            @endif
+                        @endforeach
                     @endif
-                @endforeach
-            </ol>
-            <h6 class="font-weight-bolder mb-0">{{ $pageTitle }}</h6>
-        </nav>
+                </ol>
+                <h6 class="font-weight-bolder mb-0">{{ $pageTitle }}</h6>
+            </nav>
+        </div>
 
         <div class="d-flex align-items-center">
             <div class="dropdown">

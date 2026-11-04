@@ -7,6 +7,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReturnLogController;
+use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,9 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('users', UserController::class)->except('show');
         Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+        // Dashboard statistik inventaris & peminjaman
+        Route::get('statistics', [StatisticController::class, 'index'])->name('statistics.index');
     });
 
     /*

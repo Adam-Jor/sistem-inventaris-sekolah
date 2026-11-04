@@ -43,7 +43,7 @@
 }
 
 #sidenav-main.app-sidenav .navbar-brand-img {
-    max-height: 1.9rem !important;
+    max-height: 2.2rem !important;
     width: auto;
 }
 
@@ -815,4 +815,542 @@ td.text-center > .badge {
     border-color: #e2e8f0 !important;
     color: #cbd5e1 !important;
     opacity: 1 !important;
+}
+
+/* ==========================================================================
+   8. Dashboard Statistik (KPI, Grafik Batang CSS, Peringkat & Progress)
+   ========================================================================== */
+.min-w-0 {
+    min-width: 0;
+}
+
+/* Filter periode (segmented control) */
+.stat-period-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background-color: #f1f5f9;
+    border-radius: 0.75rem;
+    max-width: 100%;
+    flex-shrink: 0;
+}
+
+.stat-period-link {
+    padding: 0.45rem 0.9rem;
+    border-radius: 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    text-align: center;
+    white-space: nowrap;
+    transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.stat-period-link:hover {
+    color: #2563eb;
+}
+
+.stat-period-link.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+}
+
+/* Kartu KPI */
+.stat-kpi-card {
+    border: 1px solid #eef2f7;
+}
+
+.stat-kpi-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.3;
+}
+
+.stat-kpi-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-kpi-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.stat-kpi-value {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0.35rem 0 0.15rem;
+    line-height: 1.15;
+}
+
+.stat-kpi-unit {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.stat-kpi-hint {
+    font-size: 0.72rem;
+    color: #64748b;
+    line-height: 1.35;
+}
+
+.bg-soft-primary { background-color: #ede9fe; color: #7c3aed; }
+.bg-soft-info { background-color: #dbeafe; color: #2563eb; }
+.bg-soft-success { background-color: #dcfce7; color: #16a34a; }
+.bg-soft-warning { background-color: #fff0db; color: #d97706; }
+
+/* Warna solid untuk legend, stacked bar & progress */
+.bg-stat-warning { background-color: #f59e0b; }
+.bg-stat-info { background-color: #3b82f6; }
+.bg-stat-danger { background-color: #ef4444; }
+.bg-stat-success { background-color: #22c55e; }
+.bg-stat-secondary { background-color: #94a3b8; }
+.bg-primary-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+.bg-soft-primary-strong { background-color: #93c5fd; }
+
+.stat-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.stat-legend-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 9999px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Grafik batang vertikal (Tablet & Desktop >= 576px) */
+.stat-chart-wrapper {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.6rem;
+    align-items: stretch;
+}
+
+.stat-y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.85rem 0.25rem 1.55rem 0;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-align: right;
+    line-height: 1;
+    user-select: none;
+}
+
+.stat-bar-chart {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.65rem;
+    align-items: end;
+}
+
+.stat-bar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.stat-bar-values {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    padding: 0.15rem 0.45rem;
+}
+
+.stat-val-req {
+    color: #475569;
+}
+
+.stat-val-sep {
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.stat-val-app {
+    color: #2563eb;
+}
+
+.stat-bar-track {
+    height: 11.5rem;
+    width: 100%;
+    max-width: 4.25rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0 0.2rem;
+    border-bottom: 1px solid #cbd5e1;
+    background-image:
+        linear-gradient(to bottom, #f1f5f9 1px, transparent 1px),
+        linear-gradient(to top, transparent calc(50% - 0.5px), #f1f5f9 calc(50% - 0.5px), #f1f5f9 calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    background-repeat: no-repeat;
+}
+
+.stat-bar {
+    flex: 1 1 0;
+    max-width: 1.35rem;
+    min-height: 4px;
+    border-radius: 0.4rem 0.4rem 0.12rem 0.12rem;
+    transition: height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-bar.is-zero {
+    min-height: 2px;
+    height: 2px !important;
+    opacity: 0.35;
+}
+
+.stat-bar-requests {
+    background-color: #93c5fd;
+}
+
+.stat-bar-approved {
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22);
+}
+
+.stat-bar-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+/* Grafik perbandingan horizontal per bulan (Mobile < 576px) */
+.stat-trend-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.stat-trend-mobile-item {
+    padding: 0.65rem 0.75rem;
+    background-color: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 0.75rem;
+}
+
+.stat-trend-mobile-month {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: capitalize;
+}
+
+.stat-trend-mobile-counts {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.25rem;
+}
+
+.stat-trend-pill {
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.stat-trend-pill-req {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.stat-trend-pill-app {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.stat-trend-mobile-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 0.35rem;
+}
+
+.stat-trend-mobile-track {
+    height: 0.42rem;
+    width: 100%;
+    background-color: #e2e8f0;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.stat-trend-fill {
+    display: block;
+    height: 100%;
+    min-width: 4px;
+    border-radius: inherit;
+    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-trend-fill.is-zero {
+    min-width: 0;
+    width: 0 !important;
+}
+
+/* Stacked bar distribusi status */
+.stat-stacked-bar {
+    display: flex;
+    height: 0.75rem;
+    border-radius: 9999px;
+    overflow: hidden;
+    background-color: #f1f5f9;
+    gap: 2px;
+}
+
+.stat-stacked-segment {
+    display: block;
+    height: 100%;
+    min-width: 0.45rem;
+}
+
+.stat-legend-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.stat-legend-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.55rem 0;
+    font-size: 0.8rem;
+    color: #475569;
+    border-top: 1px solid #f1f5f9;
+}
+
+.stat-legend-list li:first-child {
+    border-top: 0;
+}
+
+/* Daftar peringkat */
+.stat-rank-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.7rem 0;
+    border-top: 1px solid #f1f5f9;
+}
+
+.stat-rank-item:first-child {
+    border-top: 0;
+    padding-top: 0.2rem;
+}
+
+.stat-rank-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.stat-rank-badge,
+.stat-rank-avatar {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    font-weight: 800;
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.stat-rank-badge.rank-1 { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #ffffff; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
+.stat-rank-badge.rank-2 { background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%); color: #ffffff; }
+.stat-rank-badge.rank-3 { background: linear-gradient(135deg, #fdba74 0%, #ea580c 100%); color: #ffffff; }
+
+.stat-rank-avatar {
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+}
+
+.stat-rank-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.stat-rank-title a {
+    color: inherit;
+}
+
+.stat-rank-title a:hover {
+    color: #2563eb;
+}
+
+.stat-rank-meta {
+    font-size: 0.72rem;
+    color: #64748b;
+}
+
+.stat-rank-value {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #2563eb;
+}
+
+/* Progress bar */
+.stat-progress {
+    height: 0.4rem;
+    border-radius: 9999px;
+    background-color: #eef2f7;
+    overflow: hidden;
+    margin-top: 0.45rem;
+}
+
+.stat-progress > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
+    transition: width 0.5s ease;
+}
+
+.stat-progress-info > span { background: linear-gradient(90deg, #7dd3fc 0%, #0ea5e9 100%); }
+.stat-progress-danger > span { background: linear-gradient(90deg, #fca5a5 0%, #ef4444 100%); }
+.stat-progress-success > span { background: linear-gradient(90deg, #86efac 0%, #22c55e 100%); }
+.stat-progress-warning > span { background: linear-gradient(90deg, #fcd34d 0%, #f59e0b 100%); }
+
+.stat-simple-row {
+    padding: 0.55rem 0;
+}
+
+.stat-simple-row:first-child {
+    padding-top: 0.1rem;
+}
+
+.stat-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid #f1f5f9;
+}
+
+.stat-list-row:first-child {
+    border-top: 0;
+    padding-top: 0.1rem;
+}
+
+.stat-empty {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    margin: 0;
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 0.75rem;
+}
+
+.stat-empty-success {
+    color: #15803d;
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+@media (max-width: 991.98px) {
+    .stat-period-switch {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .stat-period-link {
+        padding: 0.5rem 0.65rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .stat-period-switch {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.3rem;
+    }
+
+    .stat-kpi-card .card-body {
+        padding: 0.75rem !important;
+    }
+
+    .stat-kpi-label {
+        font-size: 0.7rem;
+    }
+
+    .stat-kpi-icon {
+        width: 1.9rem;
+        height: 1.9rem;
+        border-radius: 0.55rem;
+    }
+
+    .stat-kpi-icon svg {
+        width: 0.95rem;
+        height: 0.95rem;
+    }
+
+    .stat-kpi-value {
+        font-size: 1.25rem;
+        margin: 0.25rem 0 0.1rem;
+    }
+
+    .stat-kpi-hint {
+        font-size: 0.68rem;
+    }
+
+    .stat-rank-badge,
+    .stat-rank-avatar {
+        width: 1.9rem;
+        height: 1.9rem;
+        font-size: 0.75rem;
+    }
+
+    .stat-rank-title {
+        font-size: 0.8rem;
+    }
+
+    .stat-rank-value {
+        font-size: 0.85rem;
+    }
 }
