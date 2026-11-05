@@ -26,7 +26,7 @@
                 name="per_page"
                 class="form-select form-select-sm app-per-page-select"
                 aria-label="Jumlah data per halaman"
-                onchange="this.form.submit()"
+                onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()"
             >
                 @foreach ($options as $option)
                     <option value="{{ $option }}" @selected((int) $paginator->perPage() === (int) $option)>

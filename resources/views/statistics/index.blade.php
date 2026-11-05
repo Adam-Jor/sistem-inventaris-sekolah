@@ -1,6 +1,5 @@
 @php
     $fmt = fn ($value, int $decimals = 0) => number_format((float) $value, $decimals, ',', '.');
-    $maxTrend = max(1, (int) $monthlyTrend->max('requests'));
     $maxItemLoans = max(1, (int) $topItems->max('loans_count'));
     $maxBorrowerLoans = max(1, (int) $topBorrowers->max('loans_count'));
     $maxCategoryLoans = max(1, (int) $topCategories->max('loans_count'));
@@ -27,7 +26,7 @@
             <nav class="stat-period-switch" aria-label="Filter periode statistik">
                 @foreach ($periods as $key => $label)
                     <a
-                        href="{{ route('statistics.index', $key === 'all' ? [] : ['periode' => $key]) }}"
+                        href="{{ route('statistics.index', $key === 'all' ? [] : ['period' => $key]) }}"
                         class="stat-period-link {{ $period === (string) $key ? 'active' : '' }}"
                         @if ($period === (string) $key) aria-current="page" @endif
                     >{{ $label }}</a>
@@ -128,61 +127,7 @@
                     </div>
                 </div>
                 <div class="card-body p-3 pt-3">
-                    {{-- Tampilan Tablet & Desktop (>= 576px): Grafik Batang Vertikal dengan Skala Y --}}
-                    <div class="stat-chart-wrapper d-none d-sm-grid" role="img" aria-label="Grafik tren peminjaman 6 bulan terakhir">
-                        <div class="stat-y-axis" aria-hidden="true">
-                            <span>{{ $fmt($maxTrend) }}</span>
-                            <span>{{ $fmt((int) round($maxTrend / 2)) }}</span>
-                            <span>0</span>
-                        </div>
-                        <div class="stat-bar-chart">
-                            @foreach ($monthlyTrend as $month)
-                                @php
-                                    $reqPct = round($month['requests'] / $maxTrend * 100, 2);
-                                    $appPct = round($month['approved'] / $maxTrend * 100, 2);
-                                @endphp
-                                <div class="stat-bar-col" title="{{ $month['full_label'] }}: {{ $month['requests'] }} pengajuan, {{ $month['approved'] }} disetujui">
-                                    <div class="stat-bar-values">
-                                        <span class="stat-val-req">{{ $fmt($month['requests']) }}</span>
-                                        <span class="stat-val-sep">/</span>
-                                        <span class="stat-val-app">{{ $fmt($month['approved']) }}</span>
-                                    </div>
-                                    <div class="stat-bar-track">
-                                        <div class="stat-bar stat-bar-requests {{ $month['requests'] === 0 ? 'is-zero' : '' }}" style="height: {{ $reqPct }}%"></div>
-                                        <div class="stat-bar stat-bar-approved {{ $month['approved'] === 0 ? 'is-zero' : '' }}" style="height: {{ $appPct }}%"></div>
-                                    </div>
-                                    <span class="stat-bar-label">{{ $month['label'] }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- Tampilan Mobile (< 576px): Grafik Perbandingan Horizontal per Bulan --}}
-                    <div class="stat-trend-mobile d-sm-none" role="list" aria-label="Tren peminjaman 6 bulan terakhir">
-                        @foreach ($monthlyTrend as $month)
-                            @php
-                                $reqPct = round($month['requests'] / $maxTrend * 100, 2);
-                                $appPct = round($month['approved'] / $maxTrend * 100, 2);
-                            @endphp
-                            <div class="stat-trend-mobile-item" role="listitem">
-                                <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
-                                    <span class="stat-trend-mobile-month">{{ $month['full_label'] }}</span>
-                                    <div class="stat-trend-mobile-counts">
-                                        <span class="stat-trend-pill stat-trend-pill-req">{{ $fmt($month['requests']) }} ajuan</span>
-                                        <span class="stat-trend-pill stat-trend-pill-app">{{ $fmt($month['approved']) }} disetujui</span>
-                                    </div>
-                                </div>
-                                <div class="stat-trend-mobile-bars">
-                                    <div class="stat-trend-mobile-track">
-                                        <span class="stat-trend-fill stat-bar-requests {{ $month['requests'] === 0 ? 'is-zero' : '' }}" style="width: {{ $reqPct }}%"></span>
-                                    </div>
-                                    <div class="stat-trend-mobile-track">
-                                        <span class="stat-trend-fill stat-bar-approved {{ $month['approved'] === 0 ? 'is-zero' : '' }}" style="width: {{ $appPct }}%"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                    <x-monthly-trend-chart :monthlyTrend="$monthlyTrend" />
                 </div>
             </div>
         </div>
@@ -197,7 +142,7 @@
                     <div class="stat-stacked-bar mb-3" role="img" aria-label="Komposisi status peminjaman">
                         @foreach ($statusDistribution as $status)
                             @if ($status['count'] > 0)
-                                <span class="stat-stacked-segment bg-stat-{{ $status['color'] }}" style="width: {{ $status['percentage'] }}%" title="{{ $status['label'] }}: {{ $status['count'] }}"></span>
+                                <a href="{{ route('loans.index', ['status' => $status['key']]) }}" class="stat-stacked-segment bg-stat-{{ $status['color'] }}" style="width: {{ $status['percentage'] }}%" title="Lihat peminjaman {{ $status['label'] }} ({{ $status['count'] }})"></a>
                             @endif
                         @endforeach
                     </div>
@@ -205,14 +150,16 @@
                     <ul class="stat-legend-list">
                         @foreach ($statusDistribution as $status)
                             <li>
-                                <span class="d-flex align-items-center gap-2">
-                                    <span class="stat-legend-dot bg-stat-{{ $status['color'] }}"></span>
-                                    {{ $status['label'] }}
-                                </span>
-                                <span class="text-dark font-weight-bold">
-                                    {{ $fmt($status['count']) }}
-                                    <span class="text-secondary font-weight-normal ms-1">({{ $fmt($status['percentage'], 1) }}%)</span>
-                                </span>
+                                <a href="{{ route('loans.index', ['status' => $status['key']]) }}" class="stat-legend-link">
+                                    <span class="d-flex align-items-center gap-2">
+                                        <span class="stat-legend-dot bg-stat-{{ $status['color'] }}"></span>
+                                        {{ $status['label'] }}
+                                    </span>
+                                    <span class="text-dark font-weight-bold">
+                                        {{ $fmt($status['count']) }}
+                                        <span class="text-secondary font-weight-normal ms-1">({{ $fmt($status['percentage'], 1) }}%)</span>
+                                    </span>
+                                </a>
                             </li>
                         @endforeach
                     </ul>
@@ -275,7 +222,12 @@
                                 <div class="d-flex align-items-start justify-content-between gap-2">
                                     <div class="min-w-0">
                                         <h6 class="stat-rank-title">
-                                            <span class="text-secondary me-1">#{{ $index + 1 }}</span>{{ $row->user?->name ?? 'Pengguna Terhapus' }}
+                                            <span class="text-secondary me-1">#{{ $index + 1 }}</span>
+                                            @if ($row->user)
+                                                <a href="{{ route('loans.index', ['search' => $row->user->email]) }}" title="Lihat riwayat peminjaman {{ $row->user->name }}">{{ $row->user->name }}</a>
+                                            @else
+                                                Pengguna Terhapus
+                                            @endif
                                         </h6>
                                         <span class="stat-rank-meta text-truncate d-block">{{ $row->user?->email ?? '-' }}</span>
                                     </div>
@@ -312,7 +264,7 @@
                     @forelse ($topCategories as $row)
                         <div class="stat-simple-row">
                             <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
-                                <span class="text-sm text-dark font-weight-bold text-truncate min-w-0">{{ $row->name }}</span>
+                                <a href="{{ route('items.index', ['category_id' => $row->id]) }}" class="text-sm text-dark font-weight-bold text-truncate min-w-0 stat-drill-link" title="Lihat barang kategori {{ $row->name }}">{{ $row->name }}</a>
                                 <span class="text-xs text-secondary flex-shrink-0">
                                     <strong class="text-dark">{{ $fmt($row->loans_count) }}x</strong> &bull; {{ $fmt($row->units_total) }} unit
                                 </span>
@@ -336,7 +288,11 @@
                     @forelse ($lateBorrowers as $row)
                         <div class="stat-simple-row">
                             <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
-                                <span class="text-sm text-dark font-weight-bold text-truncate min-w-0">{{ $row->user?->name ?? 'Pengguna Terhapus' }}</span>
+                                @if ($row->user)
+                                    <a href="{{ route('loans.index', ['search' => $row->user->email]) }}" class="text-sm text-dark font-weight-bold text-truncate min-w-0 stat-drill-link" title="Lihat riwayat peminjaman {{ $row->user->name }}">{{ $row->user->name }}</a>
+                                @else
+                                    <span class="text-sm text-dark font-weight-bold text-truncate min-w-0">Pengguna Terhapus</span>
+                                @endif
                                 <span class="text-xs text-secondary flex-shrink-0">
                                     <strong class="text-danger">{{ $fmt($row->late_count) }}x telat</strong> / {{ $fmt($row->loans_count) }}
                                 </span>
@@ -362,9 +318,9 @@
                     @foreach ($conditionDistribution as $condition)
                         <div class="stat-simple-row">
                             <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
-                                <span class="d-flex align-items-center gap-2 text-sm text-dark font-weight-bold min-w-0">
+                                <a href="{{ route('items.index', ['condition' => $condition['key']]) }}" class="d-flex align-items-center gap-2 text-sm text-dark font-weight-bold min-w-0 stat-drill-link" title="Lihat barang kondisi {{ $condition['label'] }}">
                                     <span class="stat-legend-dot bg-stat-{{ $condition['color'] }}"></span>{{ $condition['label'] }}
-                                </span>
+                                </a>
                                 <span class="text-xs text-secondary flex-shrink-0">
                                     <strong class="text-dark">{{ $fmt($condition['count']) }}</strong> barang ({{ $fmt($condition['percentage'], 1) }}%)
                                 </span>

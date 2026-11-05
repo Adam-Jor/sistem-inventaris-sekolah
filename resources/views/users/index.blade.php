@@ -18,24 +18,41 @@
                         </div>
                     </div>
 
+                    @php
+                        $baseQuery = ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : [];
+                        $activeFilters = [];
+                        if ($search !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Pencarian',
+                                'value' => $search,
+                                'url' => route('users.index', array_filter($baseQuery + ['role' => $role], fn ($v) => $v !== '')),
+                            ];
+                        }
+                        if ($role !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Role',
+                                'value' => ucfirst($role),
+                                'url' => route('users.index', array_filter($baseQuery + ['search' => $search], fn ($v) => $v !== '')),
+                            ];
+                        }
+                    @endphp
+
                     {{-- Form Pencarian & Filter Role --}}
-                    <form method="GET" action="{{ route('users.index') }}" class="row g-2 align-items-center bg-gray-100 p-2 border-radius-lg mb-2">
+                    <form method="GET" action="{{ route('users.index') }}" class="row g-2 align-items-center modern-filter-bar mb-2">
                         @if (($perPage ?? 10) !== 10)
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
 
                         <div class="col-12 col-md-6 col-lg-6">
-                            <input
-                                type="text"
+                            <x-search-input
                                 name="search"
-                                value="{{ $search }}"
-                                class="form-control form-control-sm bg-white"
+                                :value="$search"
                                 placeholder="Cari nama atau email pengguna..."
-                            >
+                            />
                         </div>
 
                         <div class="col-12 col-sm-7 col-md-4 col-lg-4">
-                            <select name="role" class="form-select form-select-sm bg-white">
+                            <select name="role" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Role</option>
                                 <option value="admin" @selected($role === 'admin')>Admin</option>
                                 <option value="user" @selected($role === 'user')>User</option>
@@ -46,12 +63,14 @@
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
 
                             @if ($search !== '' || $role !== '')
-                                <a href="{{ route('users.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">
+                                <a href="{{ route('users.index', $baseQuery) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">
                                     Reset
                                 </a>
                             @endif
                         </div>
                     </form>
+
+                    <x-filter-chips :filters="$activeFilters" :resetUrl="route('users.index', $baseQuery)" />
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
@@ -79,7 +98,7 @@
                                     <tr>
                                         <td class="ps-4">
                                             <span class="text-xs font-weight-bold text-secondary">
-                                                {{ $users->firstItem() + $index }}
+                                                {{ number_format($users->firstItem() + $index, 0, ',', '.') }}
                                             </span>
                                         </td>
                                         <td>

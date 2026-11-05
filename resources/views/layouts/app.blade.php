@@ -22,6 +22,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="g-sidenav-show bg-gray-100 role-{{ auth()->user()->role }}">
+    <div id="app-ajax-progress" class="app-ajax-progress" aria-hidden="true"></div>
+
     @include('layouts.partials.sidebar')
 
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
@@ -30,7 +32,9 @@
         <div class="container-fluid px-3 px-md-4 py-3 py-md-4">
             <x-flash-message />
 
-            {{ $slot }}
+            <div id="app-ajax-region" data-ajax-region>
+                {{ $slot }}
+            </div>
 
             <footer class="footer pt-4">
                 <div class="container-fluid px-0">

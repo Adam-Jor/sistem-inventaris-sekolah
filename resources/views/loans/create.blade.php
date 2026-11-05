@@ -50,7 +50,7 @@
                                         <option value="" disabled>-- Pilih Barang yang Akan Dipinjam --</option>
                                         @foreach ($items as $item)
                                             <option value="{{ $item->id }}" @selected($initialItemId === (string) $item->id)>
-                                                {{ $item->name }} ({{ $item->code }}) &mdash; Stok: {{ $item->stock }} unit [{{ $item->category?->name }}]
+                                                {{ $item->name }} ({{ $item->code }}) &mdash; Stok: {{ number_format($item->stock, 0, ',', '.') }} unit [{{ $item->category?->name }}]
                                             </option>
                                         @endforeach
                                     </select>

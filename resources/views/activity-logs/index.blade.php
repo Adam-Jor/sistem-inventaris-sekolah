@@ -41,24 +41,49 @@
                         </span>
                     </div>
 
+                    @php
+                        $baseQuery = ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : [];
+                        $activeFilters = [];
+                        if ($search !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Pencarian',
+                                'value' => $search,
+                                'url' => route('activity-logs.index', array_filter($baseQuery + ['user_id' => $userId, 'action' => $action], fn ($v) => $v !== '' && $v !== null)),
+                            ];
+                        }
+                        if ($userId !== '' && $userId !== null) {
+                            $uName = $users->firstWhere('id', (int) $userId)?->name ?? $userId;
+                            $activeFilters[] = [
+                                'label' => 'Pelaku',
+                                'value' => $uName,
+                                'url' => route('activity-logs.index', array_filter($baseQuery + ['search' => $search, 'action' => $action], fn ($v) => $v !== '' && $v !== null)),
+                            ];
+                        }
+                        if ($action !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Aksi',
+                                'value' => $actionLabels[$action] ?? $action,
+                                'url' => route('activity-logs.index', array_filter($baseQuery + ['search' => $search, 'user_id' => $userId], fn ($v) => $v !== '' && $v !== null)),
+                            ];
+                        }
+                    @endphp
+
                     {{-- Form Pencarian & Filter User / Aksi --}}
-                    <form method="GET" action="{{ route('activity-logs.index') }}" class="row g-2 align-items-center bg-gray-100 p-2 border-radius-lg mb-2">
+                    <form method="GET" action="{{ route('activity-logs.index') }}" class="row g-2 align-items-center modern-filter-bar mb-2">
                         @if (($perPage ?? 10) !== 10)
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
 
                         <div class="col-12 col-md-6 col-lg-4">
-                            <input
-                                type="text"
+                            <x-search-input
                                 name="search"
-                                value="{{ $search }}"
-                                class="form-control form-control-sm bg-white"
+                                :value="$search"
                                 placeholder="Cari deskripsi aktivitas atau pelaku..."
-                            >
+                            />
                         </div>
 
                         <div class="col-6 col-md-3 col-lg-3">
-                            <select name="user_id" class="form-select form-select-sm bg-white">
+                            <select name="user_id" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Pengguna</option>
                                 @foreach ($users as $userOption)
                                     <option value="{{ $userOption->id }}" @selected((string) $userId === (string) $userOption->id)>
@@ -69,7 +94,7 @@
                         </div>
 
                         <div class="col-6 col-md-3 col-lg-3">
-                            <select name="action" class="form-select form-select-sm bg-white">
+                            <select name="action" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Jenis Aksi</option>
                                 @foreach ($actions as $actionOption)
                                     <option value="{{ $actionOption }}" @selected($action === $actionOption)>
@@ -82,10 +107,12 @@
                         <div class="col-12 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
                             @if ($hasFilters)
-                                <a href="{{ route('activity-logs.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
+                                <a href="{{ route('activity-logs.index', $baseQuery) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
                             @endif
                         </div>
                     </form>
+
+                    <x-filter-chips :filters="$activeFilters" :resetUrl="route('activity-logs.index', $baseQuery)" />
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
@@ -118,7 +145,7 @@
                                     <tr>
                                         <td class="ps-4">
                                             <span class="text-xs font-weight-bold text-secondary">
-                                                {{ $logs->firstItem() + $index }}
+                                                {{ number_format($logs->firstItem() + $index, 0, ',', '.') }}
                                             </span>
                                         </td>
                                         <td>

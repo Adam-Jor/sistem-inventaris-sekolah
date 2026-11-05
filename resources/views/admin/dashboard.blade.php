@@ -89,6 +89,28 @@
         </div>
     </div>
 
+    {{-- Grafik Tren Peminjaman Per Bulan --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header pb-0 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div>
+                        <h6 class="mb-0">Tren Peminjaman 6 Bulan Terakhir</h6>
+                        <p class="text-xs text-secondary mb-0">Perbandingan jumlah pengajuan dan peminjaman yang disetujui per bulan</p>
+                    </div>
+                    <div class="d-flex align-items-center flex-wrap gap-3">
+                        <span class="stat-legend"><span class="stat-legend-dot bg-soft-primary-strong"></span>Pengajuan</span>
+                        <span class="stat-legend"><span class="stat-legend-dot bg-primary-gradient"></span>Disetujui</span>
+                        <a href="{{ route('statistics.index') }}" class="btn btn-sm btn-outline-primary mb-0">Statistik Lengkap</a>
+                    </div>
+                </div>
+                <div class="card-body p-3 pt-3">
+                    <x-monthly-trend-chart :monthlyTrend="$monthlyTrend" />
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Peminjaman Terbaru & Aktivitas Terbaru --}}
     <div class="row">
         <div class="col-lg-8 mb-4 mb-lg-0">

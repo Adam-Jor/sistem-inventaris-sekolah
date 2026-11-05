@@ -18,26 +18,34 @@
                         </div>
                     </div>
 
-                    <form method="GET" action="{{ route('categories.index') }}" class="row g-2 align-items-center bg-gray-100 p-2 border-radius-lg mb-2">
+                    @php
+                        $baseQuery = ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : [];
+                        $activeFilters = [];
+                        if ($search !== '') {
+                            $activeFilters[] = ['label' => 'Pencarian', 'value' => $search, 'url' => route('categories.index', $baseQuery)];
+                        }
+                    @endphp
+
+                    <form method="GET" action="{{ route('categories.index') }}" class="row g-2 align-items-center modern-filter-bar mb-2">
                         @if (($perPage ?? 10) !== 10)
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
                         <div class="col-12 col-sm-8 col-md-9 col-lg-10">
-                            <input
-                                type="text"
+                            <x-search-input
                                 name="search"
-                                value="{{ $search }}"
-                                class="form-control form-control-sm bg-white"
+                                :value="$search"
                                 placeholder="Cari nama atau deskripsi kategori..."
-                            >
+                            />
                         </div>
                         <div class="col-12 col-sm-4 col-md-3 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Cari</button>
                             @if ($search !== '')
-                                <a href="{{ route('categories.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
+                                <a href="{{ route('categories.index', $baseQuery) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
                             @endif
                         </div>
                     </form>
+
+                    <x-filter-chips :filters="$activeFilters" :resetUrl="route('categories.index', $baseQuery)" />
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
@@ -61,7 +69,7 @@
                                     <tr>
                                         <td class="ps-4">
                                             <span class="text-xs font-weight-bold text-secondary">
-                                                {{ $categories->firstItem() + $index }}
+                                                {{ number_format($categories->firstItem() + $index, 0, ',', '.') }}
                                             </span>
                                         </td>
                                         <td>

@@ -33,9 +33,15 @@
     </form>
 
     <x-slot name="footer">
-        <p class="mb-3 mb-md-4 text-sm mx-auto">
-            Belum punya akun?
-            <a href="{{ route('register') }}" class="text-info text-gradient font-weight-bold">Daftar</a>
-        </p>
+        @if (Route::has('register'))
+            <p class="mb-3 mb-md-4 text-sm mx-auto">
+                Belum punya akun?
+                <a href="{{ route('register') }}" class="text-info text-gradient font-weight-bold">Daftar</a>
+            </p>
+        @else
+            <p class="mb-3 mb-md-4 text-xs text-secondary mx-auto">
+                Belum punya akun? Hubungi Admin sekolah untuk pembuatan akun.
+            </p>
+        @endif
     </x-slot>
 </x-guest-layout>

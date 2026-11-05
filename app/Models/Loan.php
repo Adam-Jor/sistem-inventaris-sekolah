@@ -162,4 +162,29 @@ class Loan extends Model
             ->whereDate('due_date', '<', now()->toDateString())
             ->update(['status' => 'terlambat']);
     }
+
+    /**
+     * Tren jumlah pengajuan & peminjaman disetujui selama 6 bulan terakhir.
+     */
+    public static function monthlyTrend(): \Illuminate\Support\Collection
+    {
+        $start = now()->startOfMonth()->subMonths(5);
+        $approvedStatuses = ['dipinjam', 'terlambat', 'dikembalikan'];
+
+        $loans = static::query()
+            ->whereDate('loan_date', '>=', $start->toDateString())
+            ->get(['loan_date', 'status']);
+
+        return collect(range(0, 5))->map(function (int $offset) use ($start, $loans, $approvedStatuses) {
+            $month = $start->copy()->addMonths($offset);
+            $monthLoans = $loans->filter(fn (self $loan) => $loan->loan_date?->format('Y-m') === $month->format('Y-m'));
+
+            return [
+                'label' => $month->translatedFormat('M'),
+                'full_label' => $month->translatedFormat('F Y'),
+                'requests' => $monthLoans->count(),
+                'approved' => $monthLoans->whereIn('status', $approvedStatuses)->count(),
+            ];
+        });
+    }
 }

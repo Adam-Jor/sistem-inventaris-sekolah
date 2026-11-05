@@ -46,24 +46,62 @@
                         </div>
                     </div>
 
+                    @php
+                        $baseQuery = ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : [];
+                        $statusOptions = [
+                            '' => 'Semua Status',
+                            'menunggu' => 'Menunggu',
+                            'dipinjam' => 'Dipinjam',
+                            'terlambat' => 'Terlambat',
+                            'dikembalikan' => 'Dikembalikan',
+                            'ditolak' => 'Ditolak',
+                        ];
+                        $activeFilters = [];
+                        if ($search !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Pencarian',
+                                'value' => $search,
+                                'url' => route('loans.index', array_filter($baseQuery + ['status' => $status], fn ($v) => $v !== '')),
+                            ];
+                        }
+                        if ($status !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Status',
+                                'value' => $statusOptions[$status] ?? ucfirst($status),
+                                'url' => route('loans.index', array_filter($baseQuery + ['search' => $search], fn ($v) => $v !== '')),
+                            ];
+                        }
+                    @endphp
+
+                    {{-- Quick Status Pills (1-Click Filter) --}}
+                    <nav class="filter-status-pills mb-2" aria-label="Filter cepat status peminjaman">
+                        @foreach ($statusOptions as $key => $label)
+                            @php
+                                $pillQuery = array_filter($baseQuery + ['search' => $search, 'status' => $key], fn ($v) => $v !== '');
+                            @endphp
+                            <a
+                                href="{{ route('loans.index', $pillQuery) }}"
+                                class="filter-status-pill {{ $status === $key ? 'active' : '' }}"
+                            >{{ $label }}</a>
+                        @endforeach
+                    </nav>
+
                     {{-- Form Pencarian & Filter Status (Mobile-First) --}}
-                    <form method="GET" action="{{ route('loans.index') }}" class="row g-2 align-items-center bg-gray-100 p-2 border-radius-lg mb-2">
+                    <form method="GET" action="{{ route('loans.index') }}" class="row g-2 align-items-center modern-filter-bar mb-2">
                         @if (($perPage ?? 10) !== 10)
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
 
                         <div class="col-12 col-md-6 col-lg-6">
-                            <input
-                                type="text"
+                            <x-search-input
                                 name="search"
-                                value="{{ $search }}"
-                                class="form-control form-control-sm bg-white"
-                                placeholder="{{ $isAdmin ? 'Cari nama/kode barang atau nama peminjam...' : 'Cari nama atau kode barang...' }}"
-                            >
+                                :value="$search"
+                                :placeholder="$isAdmin ? 'Cari nama/kode barang atau nama peminjam...' : 'Cari nama atau kode barang...'"
+                            />
                         </div>
 
                         <div class="col-12 col-sm-7 col-md-4 col-lg-4">
-                            <select name="status" class="form-select form-select-sm bg-white">
+                            <select name="status" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Status</option>
                                 <option value="menunggu" @selected($status === 'menunggu')>Menunggu Verifikasi</option>
                                 <option value="dipinjam" @selected($status === 'dipinjam')>Sedang Dipinjam</option>
@@ -76,10 +114,12 @@
                         <div class="col-12 col-sm-5 col-md-2 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
                             @if ($hasFilters)
-                                <a href="{{ route('loans.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
+                                <a href="{{ route('loans.index', $baseQuery) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
                             @endif
                         </div>
                     </form>
+
+                    <x-filter-chips :filters="$activeFilters" :resetUrl="route('loans.index', $baseQuery)" />
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
@@ -117,7 +157,7 @@
                                     <tr>
                                         <td class="ps-4">
                                             <span class="text-xs font-weight-bold text-secondary">
-                                                {{ $loans->firstItem() + $index }}
+                                                {{ number_format($loans->firstItem() + $index, 0, ',', '.') }}
                                             </span>
                                         </td>
 

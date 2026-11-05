@@ -50,7 +50,9 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentLoans', 'recentActivities'));
+        $monthlyTrend = Loan::monthlyTrend();
+
+        return view('admin.dashboard', compact('stats', 'recentLoans', 'recentActivities', 'monthlyTrend'));
     }
 
     /**

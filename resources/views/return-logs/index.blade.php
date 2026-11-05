@@ -133,24 +133,41 @@
                         </div>
                     </div>
 
+                    @php
+                        $baseQuery = ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : [];
+                        $activeFilters = [];
+                        if ($search !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Pencarian',
+                                'value' => $search,
+                                'url' => route('return-logs.index', array_filter($baseQuery + ['condition' => $condition], fn ($v) => $v !== '')),
+                            ];
+                        }
+                        if ($condition !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Kondisi Kembali',
+                                'value' => ucwords($condition),
+                                'url' => route('return-logs.index', array_filter($baseQuery + ['search' => $search], fn ($v) => $v !== '')),
+                            ];
+                        }
+                    @endphp
+
                     {{-- Form Pencarian & Filter Kondisi --}}
-                    <form method="GET" action="{{ route('return-logs.index') }}" class="row g-2 align-items-center bg-gray-100 p-2 border-radius-lg mb-2">
+                    <form method="GET" action="{{ route('return-logs.index') }}" class="row g-2 align-items-center modern-filter-bar mb-2">
                         @if (($perPage ?? 10) !== 10)
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
 
                         <div class="col-12 col-md-6 col-lg-6">
-                            <input
-                                type="text"
+                            <x-search-input
                                 name="search"
-                                value="{{ $search }}"
-                                class="form-control form-control-sm bg-white"
+                                :value="$search"
                                 placeholder="Cari nama/kode barang atau nama peminjam..."
-                            >
+                            />
                         </div>
 
                         <div class="col-12 col-sm-7 col-md-4 col-lg-4">
-                            <select name="condition" class="form-select form-select-sm bg-white">
+                            <select name="condition" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Kondisi Saat Kembali</option>
                                 <option value="baik" @selected($condition === 'baik')>Baik</option>
                                 <option value="rusak ringan" @selected($condition === 'rusak ringan')>Rusak Ringan</option>
@@ -161,10 +178,12 @@
                         <div class="col-12 col-sm-5 col-md-2 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
                             @if ($hasFilters)
-                                <a href="{{ route('return-logs.index', ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : []) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
+                                <a href="{{ route('return-logs.index', $baseQuery) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>
                             @endif
                         </div>
                     </form>
+
+                    <x-filter-chips :filters="$activeFilters" :resetUrl="route('return-logs.index', $baseQuery)" />
                 </div>
 
                 <div class="card-body px-0 pt-2 pb-2">
@@ -198,7 +217,7 @@
                                     <tr>
                                         <td class="ps-4">
                                             <span class="text-xs font-weight-bold text-secondary">
-                                                {{ $returnLogs->firstItem() + $index }}
+                                                {{ number_format($returnLogs->firstItem() + $index, 0, ',', '.') }}
                                             </span>
                                         </td>
                                         <td>

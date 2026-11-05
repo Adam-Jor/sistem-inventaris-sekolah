@@ -1160,6 +1160,33 @@ td.text-center > .badge {
     border-top: 0;
 }
 
+.stat-legend-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 0.45rem;
+    transition: color 0.15s ease;
+}
+
+.stat-legend-link:hover {
+    color: #2563eb;
+}
+
+.stat-drill-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.stat-drill-link:hover {
+    color: #2563eb !important;
+}
+
 /* Daftar peringkat */
 .stat-rank-item {
     display: flex;
@@ -1353,4 +1380,233 @@ td.text-center > .badge {
     .stat-rank-value {
         font-size: 0.85rem;
     }
+}
+
+/* ==========================================================================
+   9. Sistem Filter Modern (Search Input, Quick Status Pills, Active Chips)
+   ========================================================================== */
+[x-cloak] {
+    display: none !important;
+}
+
+.modern-filter-bar {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.85rem;
+    padding: 0.6rem 0.7rem;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.modern-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.modern-search-icon {
+    position: absolute;
+    left: 0.7rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.modern-search-icon svg {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+.modern-search-input {
+    padding-left: 2.15rem !important;
+    padding-right: 2rem !important;
+}
+
+.modern-search-clear {
+    position: absolute;
+    right: 0.45rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 9999px;
+    border: 0;
+    background-color: #e2e8f0;
+    color: #475569;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.modern-search-clear:hover {
+    background-color: #cbd5e1;
+    color: #0f172a;
+}
+
+/* Quick Status Pills (Halaman Peminjaman) */
+.filter-status-pills {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.3rem;
+    background-color: #f1f5f9;
+    border-radius: 0.75rem;
+}
+
+.filter-status-pill {
+    padding: 0.38rem 0.8rem;
+    border-radius: 0.55rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.filter-status-pill:hover {
+    color: #2563eb;
+    background-color: rgba(255, 255, 255, 0.65);
+}
+
+.filter-status-pill.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+}
+
+/* Active Filter Chips / Tags */
+.active-filter-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.25rem 0.15rem 0.35rem;
+}
+
+.active-filter-title {
+    font-size: 0.73rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.active-filter-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.active-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.22rem 0.6rem;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 9999px;
+    font-size: 0.73rem;
+    color: #1e40af;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.active-filter-chip:hover {
+    background-color: #dbeafe;
+    border-color: #93c5fd;
+    color: #1e3a8a;
+}
+
+.active-filter-chip .chip-key {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.active-filter-chip .chip-val {
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.active-filter-chip .chip-remove {
+    font-size: 0.9rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-left: 0.1rem;
+    color: #2563eb;
+}
+
+.active-filter-reset {
+    font-size: 0.73rem;
+    font-weight: 700;
+    color: #dc2626;
+    text-decoration: none;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.4rem;
+}
+
+.active-filter-reset:hover {
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+@media (max-width: 575.98px) {
+    .filter-status-pills {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .filter-status-pill {
+        text-align: center;
+        padding: 0.4rem 0.45rem;
+        font-size: 0.72rem;
+    }
+}
+
+/* ==========================================================================
+   10. Transisi Dinamis Tanpa Reload (AJAX Progress Bar & Region State)
+   ========================================================================== */
+.app-ajax-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 2000;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 50%, #60a5fa 100%);
+    background-size: 200% 100%;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+}
+
+.app-ajax-progress.is-loading {
+    opacity: 1;
+    transform: scaleX(0.82);
+}
+
+.app-ajax-progress.is-done {
+    opacity: 0;
+    transform: scaleX(1);
+}
+
+#app-ajax-region {
+    transition: opacity 0.16s ease;
+}
+
+#app-ajax-region.is-fetching {
+    opacity: 0.62;
 }

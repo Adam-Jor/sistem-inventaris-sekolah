@@ -284,7 +284,7 @@
             <tbody>
                 @forelse ($loans as $index => $loan)
                     <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td class="text-center">{{ number_format($index + 1, 0, ',', '.') }}</td>
                         <td>
                             <strong>{{ $loan->user?->name ?? '-' }}</strong>
                             <span class="text-muted">{{ $loan->user?->email ?? '-' }}</span>

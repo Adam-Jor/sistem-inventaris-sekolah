@@ -39,7 +39,7 @@ class StatisticController extends Controller
     {
         Loan::syncOverdueStatuses();
 
-        $period = (string) $request->query('periode', 'all');
+        $period = (string) ($request->query('period') ?? $request->query('periode', 'all'));
 
         if (! array_key_exists($period, self::PERIODS)) {
             $period = 'all';
@@ -55,7 +55,7 @@ class StatisticController extends Controller
             'startDate' => $startDate,
             'summary' => $this->summary($startDate),
             'statusDistribution' => $this->statusDistribution($startDate),
-            'monthlyTrend' => $this->monthlyTrend(),
+            'monthlyTrend' => Loan::monthlyTrend(),
             'topItems' => $this->topItems($startDate),
             'topBorrowers' => $this->topBorrowers($startDate),
             'lateBorrowers' => $this->lateBorrowers($startDate),
@@ -74,7 +74,7 @@ class StatisticController extends Controller
     {
         return Loan::query()->when(
             $startDate,
-            fn (Builder $query) => $query->whereDate('loans.loan_date', '>=', $startDate->toDateString())
+            fn (Builder $query) => $query->whereDate('loan_date', '>=', $startDate->toDateString())
         );
     }
 
@@ -85,30 +85,30 @@ class StatisticController extends Controller
     {
         $totalRequests = $this->loansInPeriod($startDate)->count();
 
-        $approvedQuery = $this->loansInPeriod($startDate)->whereIn('loans.status', self::APPROVED_STATUSES);
+        $approvedQuery = $this->loansInPeriod($startDate)->whereIn('status', self::APPROVED_STATUSES);
         $approvedCount = (clone $approvedQuery)->count();
-        $unitsBorrowed = (int) (clone $approvedQuery)->sum('loans.quantity');
-        $activeBorrowers = (clone $approvedQuery)->distinct()->count('loans.user_id');
+        $unitsBorrowed = (int) (clone $approvedQuery)->sum('quantity');
+        $activeBorrowers = (clone $approvedQuery)->distinct()->count('user_id');
 
-        $rejectedCount = $this->loansInPeriod($startDate)->where('loans.status', 'ditolak')->count();
+        $rejectedCount = $this->loansInPeriod($startDate)->where('status', 'ditolak')->count();
         $decidedCount = $approvedCount + $rejectedCount;
 
-        // Peminjaman yang sudah dikembalikan beserta tanggal kembalinya.
+        // Peminjaman yang sudah dikembalikan beserta relasi catatan pengembaliannya.
         $returnedLoans = $this->loansInPeriod($startDate)
-            ->join('return_logs', function ($join) {
-                $join->on('return_logs.loan_id', '=', 'loans.id')
-                    ->whereNull('return_logs.deleted_at');
-            })
-            ->where('loans.status', 'dikembalikan')
-            ->get(['loans.loan_date', 'loans.due_date', 'return_logs.returned_at']);
+            ->with('returnLog')
+            ->where('status', 'dikembalikan')
+            ->whereHas('returnLog')
+            ->get();
 
         $onTimeCount = $returnedLoans->filter(
-            fn ($loan) => Carbon::parse($loan->returned_at)->startOfDay()->lte(Carbon::parse($loan->due_date)->startOfDay())
+            fn (Loan $loan) => $loan->returnLog?->returned_at !== null
+                && $loan->due_date !== null
+                && $loan->returnLog->returned_at->copy()->startOfDay()->lte($loan->due_date->copy()->startOfDay())
         )->count();
 
         $averageDuration = $returnedLoans->isNotEmpty()
             ? round($returnedLoans->avg(
-                fn ($loan) => max(0, Carbon::parse($loan->loan_date)->startOfDay()->diffInDays(Carbon::parse($loan->returned_at)->startOfDay()))
+                fn (Loan $loan) => max(0, $loan->loan_date->copy()->startOfDay()->diffInDays($loan->returnLog->returned_at->copy()->startOfDay()))
             ), 1)
             : null;
 
@@ -131,9 +131,9 @@ class StatisticController extends Controller
     private function statusDistribution(?Carbon $startDate): Collection
     {
         $counts = $this->loansInPeriod($startDate)
-            ->select('loans.status')
+            ->select('status')
             ->selectRaw('COUNT(*) as total')
-            ->groupBy('loans.status')
+            ->groupBy('status')
             ->pluck('total', 'status');
 
         $total = max(1, (int) $counts->sum());
@@ -148,32 +148,9 @@ class StatisticController extends Controller
             $count = (int) ($counts[$status] ?? 0);
 
             return $meta + [
+                'key' => $status,
                 'count' => $count,
                 'percentage' => round($count / $total * 100, 1),
-            ];
-        });
-    }
-
-    /**
-     * Tren jumlah pengajuan & peminjaman disetujui selama 6 bulan terakhir.
-     */
-    private function monthlyTrend(): Collection
-    {
-        $start = now()->startOfMonth()->subMonths(5);
-
-        $loans = Loan::query()
-            ->whereDate('loan_date', '>=', $start->toDateString())
-            ->get(['loan_date', 'status']);
-
-        return collect(range(0, 5))->map(function (int $offset) use ($start, $loans) {
-            $month = $start->copy()->addMonths($offset);
-            $monthLoans = $loans->filter(fn (Loan $loan) => $loan->loan_date?->format('Y-m') === $month->format('Y-m'));
-
-            return [
-                'label' => $month->translatedFormat('M'),
-                'full_label' => $month->translatedFormat('F Y'),
-                'requests' => $monthLoans->count(),
-                'approved' => $monthLoans->whereIn('status', self::APPROVED_STATUSES)->count(),
             ];
         });
     }
@@ -184,10 +161,10 @@ class StatisticController extends Controller
     private function topItems(?Carbon $startDate): Collection
     {
         return $this->loansInPeriod($startDate)
-            ->whereIn('loans.status', self::APPROVED_STATUSES)
-            ->select('loans.item_id')
-            ->selectRaw('COUNT(*) as loans_count, SUM(loans.quantity) as units_total')
-            ->groupBy('loans.item_id')
+            ->whereIn('status', self::APPROVED_STATUSES)
+            ->select('item_id')
+            ->selectRaw('COUNT(*) as loans_count, SUM(quantity) as units_total')
+            ->groupBy('item_id')
             ->orderByDesc('loans_count')
             ->orderByDesc('units_total')
             ->with('item.category')
@@ -196,26 +173,35 @@ class StatisticController extends Controller
     }
 
     /**
-     * Query agregat per peminjam (jumlah transaksi, unit, dan keterlambatan).
+     * Agregasi statistik per peminjam menggunakan Eloquent Relationship (tanpa manual JOIN).
      */
-    private function borrowerAggregate(?Carbon $startDate): Builder
+    private function borrowerStats(?Carbon $startDate): Collection
     {
         return $this->loansInPeriod($startDate)
-            ->leftJoin('return_logs', function ($join) {
-                $join->on('return_logs.loan_id', '=', 'loans.id')
-                    ->whereNull('return_logs.deleted_at');
+            ->with(['user', 'returnLog'])
+            ->whereIn('status', self::APPROVED_STATUSES)
+            ->get()
+            ->groupBy('user_id')
+            ->map(function (Collection $loans, $userId) {
+                $lateCount = $loans->filter(function (Loan $loan) {
+                    if ($loan->status === 'terlambat') {
+                        return true;
+                    }
+
+                    return $loan->returnLog?->returned_at !== null
+                        && $loan->due_date !== null
+                        && $loan->returnLog->returned_at->copy()->startOfDay()->gt($loan->due_date->copy()->startOfDay());
+                })->count();
+
+                return (object) [
+                    'user_id' => (int) $userId,
+                    'user' => $loans->first()?->user,
+                    'loans_count' => $loans->count(),
+                    'units_total' => (int) $loans->sum('quantity'),
+                    'late_count' => $lateCount,
+                ];
             })
-            ->whereIn('loans.status', self::APPROVED_STATUSES)
-            ->select('loans.user_id')
-            ->selectRaw('COUNT(*) as loans_count')
-            ->selectRaw('SUM(loans.quantity) as units_total')
-            ->selectRaw(
-                "SUM(CASE WHEN loans.status = 'terlambat'
-                    OR (return_logs.id IS NOT NULL AND DATE(return_logs.returned_at) > DATE(loans.due_date))
-                    THEN 1 ELSE 0 END) as late_count"
-            )
-            ->groupBy('loans.user_id')
-            ->with('user');
+            ->values();
     }
 
     /**
@@ -223,11 +209,10 @@ class StatisticController extends Controller
      */
     private function topBorrowers(?Carbon $startDate): Collection
     {
-        return $this->borrowerAggregate($startDate)
-            ->orderByDesc('loans_count')
-            ->orderByDesc('units_total')
+        return $this->borrowerStats($startDate)
+            ->sortByDesc(fn ($row) => [$row->loans_count, $row->units_total])
             ->take(5)
-            ->get();
+            ->values();
     }
 
     /**
@@ -235,32 +220,37 @@ class StatisticController extends Controller
      */
     private function lateBorrowers(?Carbon $startDate): Collection
     {
-        return $this->borrowerAggregate($startDate)
-            ->orderByDesc('late_count')
-            ->orderByDesc('loans_count')
-            ->take(10)
-            ->get()
+        return $this->borrowerStats($startDate)
             ->filter(fn ($row) => (int) $row->late_count > 0)
+            ->sortByDesc(fn ($row) => [$row->late_count, $row->loans_count])
             ->take(5)
             ->values();
     }
 
     /**
-     * Kategori barang yang paling diminati.
+     * Kategori barang yang paling diminati menggunakan Eloquent Relationship.
      */
     private function topCategories(?Carbon $startDate): Collection
     {
         return $this->loansInPeriod($startDate)
-            ->join('items', 'items.id', '=', 'loans.item_id')
-            ->join('categories', 'categories.id', '=', 'items.category_id')
-            ->whereIn('loans.status', self::APPROVED_STATUSES)
-            ->select('categories.id', 'categories.name')
-            ->selectRaw('COUNT(*) as loans_count, SUM(loans.quantity) as units_total')
-            ->groupBy('categories.id', 'categories.name')
-            ->orderByDesc('loans_count')
+            ->with('item.category')
+            ->whereIn('status', self::APPROVED_STATUSES)
+            ->get()
+            ->filter(fn (Loan $loan) => $loan->item?->category !== null)
+            ->groupBy(fn (Loan $loan) => $loan->item->category->id)
+            ->map(function (Collection $loans) {
+                $category = $loans->first()->item->category;
+
+                return (object) [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'loans_count' => $loans->count(),
+                    'units_total' => (int) $loans->sum('quantity'),
+                ];
+            })
+            ->sortByDesc(fn ($row) => [$row->loans_count, $row->units_total])
             ->take(5)
-            ->toBase()
-            ->get();
+            ->values();
     }
 
     /**
@@ -284,6 +274,7 @@ class StatisticController extends Controller
             $count = (int) ($counts[$condition] ?? 0);
 
             return $meta + [
+                'key' => $condition,
                 'count' => $count,
                 'percentage' => round($count / $total * 100, 1),
             ];

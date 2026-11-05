@@ -122,20 +122,43 @@ Setelah menjalankan `php artisan migrate:fresh --seed`, Anda dapat langsung logi
 
 ---
 
-## Perintah Tambahan & Pengujian
+## Panduan Fitur Notifikasi Email & Pengujian
 
-### Mengirim Notifikasi Email Jatuh Tempo / Keterlambatan via CLI
-Selain melalui tombol **"Kirim Email Jatuh Tempo"** di halaman Admin, Anda dapat menjalankan perintah Artisan berikut secara manual atau melalui penjadwalan (*scheduler*):
-```bash
-# Kirim email pengingat (H-1 & Hari-H) serta peringatan keterlambatan
-php artisan loans:send-due-reminders
+### 1. Cara Kerja & Pemicu Notifikasi Email
+Sistem menyediakan 3 cara untuk mengirim email pengingat jatuh tempo (**H-1 / Hari-H**) maupun peringatan keterlambatan (**Terlambat**):
+1. **Kirim Massal via Halaman Admin (`/loans`):**
+   - Masuk sebagai Admin, buka menu **Peminjaman**, lalu klik tombol **"Kirim Email Jatuh Tempo"**.
+   - Sistem akan mengirim email ke seluruh peminjaman aktif yang mendekati jatuh tempo (H-1 s/d Hari-H) atau berstatus `terlambat` yang belum dikirimi pengingat pada hari tersebut (`reminder_sent_at`).
+2. **Kirim Satuan via Detail Peminjaman (`/loans/{id}`):**
+   - Buka halaman **Detail Peminjaman** untuk transaksi berstatus `dipinjam` atau `terlambat`, lalu klik tombol **"Kirim Email Pengingat"**.
+3. **Otomatis / Terjadwal via CLI:**
+   ```bash
+   # Kirim email pengingat (H-1 & Hari-H) serta peringatan keterlambatan
+   php artisan loans:send-due-reminders
 
-# Opsi tambahan: ubah rentang hari H-N atau paksa kirim ulang di hari yang sama
-php artisan loans:send-due-reminders --days=2 --force
+   # Opsi tambahan: ubah rentang hari H-N atau paksa kirim ulang di hari yang sama
+   php artisan loans:send-due-reminders --days=2 --force
 
-# Menjalankan worker penjadwalan otomatis (dijadwalkan setiap hari pukul 07:00)
-php artisan schedule:work
-```
+   # Menjalankan worker penjadwalan otomatis (dijadwalkan setiap hari pukul 07:00)
+   php artisan schedule:work
+   ```
+
+### 2. Konfigurasi SMTP Gmail (Jika Ingin Mengirim ke Inbox Email Asli)
+- Secara default pada pengembangan lokal, Anda dapat menggunakan `MAIL_MAILER=log` (isi email akan tercatat di `storage/logs/laravel.log`).
+- Jika ingin mengirim email sungguhan melalui **Gmail SMTP**, atur konfigurasi berikut di file `.env` menggunakan **16-digit Google App Password** (bukan password login akun Google biasa):
+  ```env
+  MAIL_MAILER=smtp
+  MAIL_HOST=smtp.gmail.com
+  MAIL_PORT=587
+  MAIL_ENCRYPTION=tls
+  MAIL_USERNAME="email-anda@gmail.com"
+  MAIL_PASSWORD="16-digit-app-password-google"
+  MAIL_FROM_ADDRESS="email-anda@gmail.com"
+  MAIL_FROM_NAME="${APP_NAME}"
+  ```
+- **Catatan Penting Domain `.test`:** Akun contoh bawaan seeder (`budi@sekolah.test` dan `siti@sekolah.test`) menggunakan domain dummy `.test` (RFC 2606) yang tidak ada di internet. Saat `MAIL_MAILER=smtp` aktif, sistem otomatis melewati alamat berakhiran `.test` agar tidak memicu *email bounce* (`mailer-daemon`). Untuk menguji pengiriman email ke inbox asli, silakan ubah email peminjam di menu **Manajemen User** (atau buat akun User baru) menggunakan alamat email aktif (misalnya `@gmail.com`).
+
+---
 
 ### Menjalankan Pengujian Otomatis (Automated Tests)
 ```bash

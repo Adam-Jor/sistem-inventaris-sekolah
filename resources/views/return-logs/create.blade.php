@@ -54,7 +54,7 @@
                 <div class="card-header pb-0">
                     <h5 class="mb-0 font-weight-bolder">Formulir Pengembalian Barang</h5>
                     <p class="text-sm text-secondary mb-0">
-                        Periksa fisik barang dan catat kondisi saat dikembalikan. Stok akan otomatis bertambah kembali sebanyak <strong>{{ $loan->quantity }} unit</strong>.
+                        Periksa fisik barang dan catat kondisi saat dikembalikan. Stok akan otomatis bertambah kembali sebanyak <strong>{{ number_format($loan->quantity, 0, ',', '.') }} unit</strong>.
                     </p>
                 </div>
 
