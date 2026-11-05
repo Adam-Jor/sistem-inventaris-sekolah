@@ -21,6 +21,8 @@ class Loan extends Model
         'due_date',
         'status',
         'notes',
+        'approved_by',
+        'approved_at',
         'reminder_sent_at',
     ];
 
@@ -30,6 +32,7 @@ class Loan extends Model
             'quantity' => 'integer',
             'loan_date' => 'date',
             'due_date' => 'date',
+            'approved_at' => 'datetime',
             'reminder_sent_at' => 'datetime',
         ];
     }
@@ -37,6 +40,14 @@ class Loan extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Admin yang memverifikasi (menyetujui/menolak) pengajuan ini.
+     */
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function item(): BelongsTo

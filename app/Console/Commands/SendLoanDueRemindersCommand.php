@@ -59,6 +59,7 @@ class SendLoanDueRemindersCommand extends Command
 
         $approachingCount = 0;
         $overdueCount = 0;
+        $failedCount = 0;
 
         foreach ($loans as $loan) {
             if (! $loan->user || ! $loan->user->hasDeliverableEmail()) {
@@ -67,8 +68,16 @@ class SendLoanDueRemindersCommand extends Command
 
             $type = $loan->isOverdue() ? 'overdue' : 'approaching';
 
-            $loan->user->notify(new LoanDueReminderNotification($loan, $type));
-            $loan->forceFill(['reminder_sent_at' => now()])->save();
+            try {
+                $loan->user->notify(new LoanDueReminderNotification($loan, $type));
+                $loan->forceFill(['reminder_sent_at' => now()])->save();
+            } catch (\Throwable $e) {
+                report($e);
+                $failedCount++;
+                $this->warn("Gagal mengirim email ke {$loan->user->email}: {$e->getMessage()}");
+
+                continue;
+            }
 
             if ($type === 'overdue') {
                 $overdueCount++;
@@ -80,7 +89,7 @@ class SendLoanDueRemindersCommand extends Command
         $totalSent = $approachingCount + $overdueCount;
 
         $this->info(
-            "Notifikasi email selesai diproses: {$totalSent} terkirim ({$approachingCount} mendekati jatuh tempo, {$overdueCount} melewati jatuh tempo)."
+            "Notifikasi email selesai diproses: {$totalSent} terkirim ({$approachingCount} mendekati jatuh tempo, {$overdueCount} melewati jatuh tempo".($failedCount > 0 ? ", {$failedCount} gagal" : '').').'
         );
 
         return self::SUCCESS;

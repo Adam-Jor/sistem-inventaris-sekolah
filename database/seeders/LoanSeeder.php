@@ -17,6 +17,7 @@ class LoanSeeder extends Seeder
     {
         $budi = User::where('email', UserSeeder::BUDI_EMAIL)->firstOrFail();
         $siti = User::where('email', UserSeeder::SITI_EMAIL)->firstOrFail();
+        $admin = User::where('email', UserSeeder::ADMIN_EMAIL)->firstOrFail();
         $itemIds = Item::pluck('id', 'code');
 
         $loans = [
@@ -39,6 +40,9 @@ class LoanSeeder extends Seeder
             $dueDate = now()->addDays($row['due']);
             $createdAt = $loanDate->isFuture() ? now() : $loanDate->copy()->setTime(8, 0);
 
+            // Pengajuan yang sudah diputuskan (bukan 'menunggu') tercatat diverifikasi oleh Admin.
+            $verified = $row['status'] !== 'menunggu';
+
             // unguarded: agar created_at/updated_at bisa diisi sesuai alur cerita data.
             Loan::unguarded(fn () => Loan::create([
                 'user_id' => $row['user']->id,
@@ -48,6 +52,8 @@ class LoanSeeder extends Seeder
                 'due_date' => $dueDate->toDateString(),
                 'status' => $row['status'],
                 'notes' => $row['notes'],
+                'approved_by' => $verified ? $admin->id : null,
+                'approved_at' => $verified ? $createdAt->copy()->addHours(2) : null,
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
             ]));

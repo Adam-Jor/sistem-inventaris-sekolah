@@ -19,8 +19,19 @@
                             </p>
                         </div>
 
-                        <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 w-100 w-md-auto">
+                        @php
+                            $exportFilter = array_filter(['search' => $search, 'status' => $status], fn ($v) => $v !== '');
+                        @endphp
+                        <div class="d-flex flex-column flex-sm-row flex-wrap align-items-stretch align-items-sm-center justify-content-md-end gap-2 w-100 w-md-auto">
                             @if ($isAdmin)
+                                <a href="{{ route('loans.export.excel', $exportFilter) }}" class="btn btn-sm btn-outline-success mb-0 w-100 w-sm-auto" title="Unduh laporan peminjaman dalam format Excel (.csv)">
+                                    Ekspor Excel
+                                </a>
+
+                                <a href="{{ route('loans.export.pdf', $exportFilter) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark mb-0 w-100 w-sm-auto" title="Buka pratinjau cetak / simpan laporan sebagai PDF">
+                                    Cetak / PDF
+                                </a>
+
                                 <form method="POST" action="{{ route('loans.notify-due') }}" class="m-0">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-outline-primary mb-0 w-100 w-sm-auto" title="Kirim notifikasi email untuk peminjaman yang mendekati (H-1/Hari-H) atau melewati jatuh tempo">

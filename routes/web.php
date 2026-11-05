@@ -34,9 +34,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('categories', CategoryController::class)->except('show');
         Route::resource('items', ItemController::class)->except(['index', 'show']);
 
+        // Ekspor laporan peminjaman (Excel/CSV & Cetak PDF)
+        Route::get('loans/export/excel', [LoanController::class, 'exportExcel'])->name('loans.export.excel');
+        Route::get('loans/export/pdf', [LoanController::class, 'exportPdf'])->name('loans.export.pdf');
+
         // Verifikasi pengajuan & pengingat email peminjaman
-        Route::post('loans/notify-due', [LoanController::class, 'sendBulkDueNotifications'])->name('loans.notify-due');
-        Route::post('loans/{loan}/notify', [LoanController::class, 'sendNotification'])->name('loans.notify');
+        Route::post('loans/notify-due', [LoanController::class, 'sendBulkDueNotifications'])
+            ->middleware('throttle:10,1')
+            ->name('loans.notify-due');
+        Route::post('loans/{loan}/notify', [LoanController::class, 'sendNotification'])
+            ->middleware('throttle:10,1')
+            ->name('loans.notify');
         Route::patch('loans/{loan}/approve', [LoanController::class, 'approve'])->name('loans.approve');
         Route::patch('loans/{loan}/reject', [LoanController::class, 'reject'])->name('loans.reject');
         Route::delete('loans/{loan}', [LoanController::class, 'destroy'])->name('loans.destroy');

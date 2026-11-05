@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LoanController extends Controller
 {
@@ -115,7 +116,7 @@ class LoanController extends Controller
         );
 
         Loan::syncOverdueStatuses();
-        $loan->refresh()->load(['user', 'item.category', 'returnLog']);
+        $loan->refresh()->load(['user', 'item.category', 'returnLog', 'approver']);
 
         return view('loans.show', compact('loan'));
     }
@@ -123,13 +124,13 @@ class LoanController extends Controller
     /**
      * Admin menyetujui pengajuan peminjaman dan mengurangi stok barang (LOA-03 & LOA-04).
      */
-    public function approve(Loan $loan): RedirectResponse
+    public function approve(Request $request, Loan $loan): RedirectResponse
     {
         if ($loan->status !== 'menunggu') {
             return back()->with('error', 'Hanya pengajuan berstatus menunggu yang dapat disetujui.');
         }
 
-        return DB::transaction(function () use ($loan) {
+        return DB::transaction(function () use ($request, $loan) {
             $item = Item::withTrashed()->lockForUpdate()->find($loan->item_id);
 
             if (! $item || $item->trashed()) {
@@ -146,7 +147,11 @@ class LoanController extends Controller
             $item->decrement('stock', $loan->quantity);
 
             $newStatus = $loan->due_date->lt(now()->startOfDay()) ? 'terlambat' : 'dipinjam';
-            $loan->update(['status' => $newStatus]);
+            $loan->update([
+                'status' => $newStatus,
+                'approved_by' => $request->user()->id,
+                'approved_at' => now(),
+            ]);
 
             $loan->load('user');
 
@@ -178,6 +183,8 @@ class LoanController extends Controller
         $loan->update([
             'status' => 'ditolak',
             'notes' => $notes,
+            'approved_by' => $request->user()->id,
+            'approved_at' => now(),
         ]);
 
         $loan->load(['item', 'user']);
@@ -243,11 +250,21 @@ class LoanController extends Controller
         }
 
         $type = $loan->isOverdue() ? 'overdue' : 'approaching';
-        $loan->user->notify(new LoanDueReminderNotification($loan, $type));
-        $loan->forceFill(['reminder_sent_at' => now()])->save();
-
         $itemName = $loan->item?->name ?? 'Barang';
         $label = $type === 'overdue' ? 'peringatan keterlambatan' : 'pengingat jatuh tempo';
+
+        try {
+            $loan->user->notify(new LoanDueReminderNotification($loan, $type));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with(
+                'error',
+                "Gagal mengirim email {$label} ke {$loan->user->email}. Pastikan koneksi internet dan konfigurasi SMTP sudah benar."
+            );
+        }
+
+        $loan->forceFill(['reminder_sent_at' => now()])->save();
 
         ActivityLogger::log(
             'notify_loan',
@@ -288,6 +305,7 @@ class LoanController extends Controller
 
         $approachingCount = 0;
         $overdueCount = 0;
+        $failedCount = 0;
 
         foreach ($loans as $loan) {
             if (! $loan->user || ! $loan->user->hasDeliverableEmail()) {
@@ -295,8 +313,16 @@ class LoanController extends Controller
             }
 
             $type = $loan->isOverdue() ? 'overdue' : 'approaching';
-            $loan->user->notify(new LoanDueReminderNotification($loan, $type));
-            $loan->forceFill(['reminder_sent_at' => now()])->save();
+
+            try {
+                $loan->user->notify(new LoanDueReminderNotification($loan, $type));
+                $loan->forceFill(['reminder_sent_at' => now()])->save();
+            } catch (\Throwable $e) {
+                report($e);
+                $failedCount++;
+
+                continue;
+            }
 
             if ($type === 'overdue') {
                 $overdueCount++;
@@ -306,6 +332,13 @@ class LoanController extends Controller
         }
 
         $totalSent = $approachingCount + $overdueCount;
+
+        if ($totalSent === 0 && $failedCount > 0) {
+            return back()->with(
+                'error',
+                "Gagal mengirim {$failedCount} email notifikasi. Pastikan koneksi internet dan konfigurasi SMTP sudah benar."
+            );
+        }
 
         if ($totalSent === 0) {
             return back()->with(
@@ -319,9 +352,129 @@ class LoanController extends Controller
             "Mengirim {$totalSent} email pengingat jatuh tempo ({$approachingCount} mendekati jatuh tempo, {$overdueCount} terlambat)."
         );
 
+        $suffix = $failedCount > 0 ? " ({$failedCount} gagal dikirim karena kendala SMTP)." : '.';
+
         return back()->with(
             'success',
-            "Berhasil mengirim {$totalSent} email notifikasi ({$approachingCount} mendekati jatuh tempo, {$overdueCount} melewati jatuh tempo)."
+            "Berhasil mengirim {$totalSent} email notifikasi ({$approachingCount} mendekati jatuh tempo, {$overdueCount} melewati jatuh tempo){$suffix}"
         );
+    }
+
+    /**
+     * Ekspor data peminjaman ke format Excel (CSV dengan UTF-8 BOM) sesuai filter pencarian/status.
+     */
+    public function exportExcel(Request $request): StreamedResponse
+    {
+        Loan::syncOverdueStatuses();
+
+        $search = $request->string('search')->trim()->toString();
+        $status = $request->string('status')->trim()->toString();
+
+        $loans = $this->buildAdminExportQuery($search, $status)->get();
+
+        ActivityLogger::log(
+            'export_loan',
+            "Mengekspor {$loans->count()} data peminjaman ke file Excel (CSV)."
+        );
+
+        $filename = 'laporan-peminjaman-'.now()->format('Y-m-d').'.csv';
+
+        return response()->streamDownload(function () use ($loans) {
+            $handle = fopen('php://output', 'w');
+
+            // UTF-8 BOM agar Microsoft Excel langsung mengenali karakter dan kolom dengan benar
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'No',
+                'Peminjam',
+                'Email Peminjam',
+                'Kode Barang',
+                'Nama Barang',
+                'Kategori',
+                'Jumlah (Unit)',
+                'Tanggal Pinjam',
+                'Jatuh Tempo',
+                'Status',
+                'Diverifikasi Oleh',
+                'Tanggal Dikembalikan',
+                'Kondisi Saat Kembali',
+                'Catatan',
+            ]);
+
+            foreach ($loans as $index => $loan) {
+                fputcsv($handle, [
+                    $index + 1,
+                    $loan->user?->name ?? '-',
+                    $loan->user?->email ?? '-',
+                    $loan->item?->code ?? '-',
+                    $loan->item?->name ?? '-',
+                    $loan->item?->category?->name ?? '-',
+                    $loan->quantity,
+                    $loan->loan_date?->format('Y-m-d') ?? '-',
+                    $loan->due_date?->format('Y-m-d') ?? '-',
+                    ucfirst($loan->status),
+                    $loan->approver?->name ?? '-',
+                    $loan->returnLog?->returned_at?->format('Y-m-d') ?? '-',
+                    $loan->returnLog ? ucwords($loan->returnLog->condition_on_return) : '-',
+                    $loan->notes ?? '-',
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * Tampilkan halaman cetak / simpan PDF untuk laporan peminjaman sesuai filter pencarian/status.
+     */
+    public function exportPdf(Request $request): View
+    {
+        Loan::syncOverdueStatuses();
+
+        $search = $request->string('search')->trim()->toString();
+        $status = $request->string('status')->trim()->toString();
+
+        $loans = $this->buildAdminExportQuery($search, $status)->get();
+
+        ActivityLogger::log(
+            'export_loan',
+            "Membuka laporan cetak/PDF untuk {$loans->count()} data peminjaman."
+        );
+
+        return view('loans.print', [
+            'loans' => $loans,
+            'search' => $search,
+            'status' => $status,
+            'printedAt' => now(),
+            'printedBy' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Query builder laporan peminjaman Admin dengan dukungan filter pencarian dan status.
+     */
+    private function buildAdminExportQuery(string $search, string $status): Builder
+    {
+        return Loan::query()
+            ->with(['user', 'item.category', 'returnLog', 'approver'])
+            ->when($search !== '', function (Builder $query) use ($search) {
+                $query->where(function (Builder $sub) use ($search) {
+                    $sub->whereHas('item', function (Builder $itemQuery) use ($search) {
+                        $itemQuery->withTrashed()
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    })->orWhereHas('user', function (Builder $userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+                });
+            })
+            ->when($status !== '', function (Builder $query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->latest();
     }
 }

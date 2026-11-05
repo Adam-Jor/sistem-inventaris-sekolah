@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * Mencatat Admin yang memverifikasi (menyetujui/menolak) pengajuan dan waktunya,
+     * sesuai rekomendasi PRD 5.4.
+     */
+    public function up(): void
+    {
+        Schema::table('loans', function (Blueprint $table) {
+            $table->foreignId('approved_by')->nullable()->after('notes')->constrained('users')->nullOnDelete();
+            $table->timestamp('approved_at')->nullable()->after('approved_by');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('loans', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('approved_by');
+            $table->dropColumn('approved_at');
+        });
+    }
+};
+

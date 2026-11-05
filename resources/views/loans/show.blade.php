@@ -62,6 +62,19 @@
                             </span>
                         </li>
                         <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
+                            <span class="text-secondary">Diverifikasi Oleh</span>
+                            <span class="font-weight-bold text-dark text-end">
+                                @if ($loan->approved_at)
+                                    {{ $loan->approver?->name ?? 'Admin (akun dihapus)' }}
+                                    <span class="text-xs text-secondary d-block d-sm-inline">
+                                        ({{ $loan->approved_at->translatedFormat('d M Y, H:i') }} WIB)
+                                    </span>
+                                @else
+                                    <span class="text-secondary font-weight-normal">Belum diverifikasi</span>
+                                @endif
+                            </span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-1 text-sm">
                             <span class="text-secondary">Pengingat Email Terakhir</span>
                             <span class="font-weight-bold text-dark">
                                 {{ $loan->reminder_sent_at ? $loan->reminder_sent_at->translatedFormat('d M Y, H:i').' WIB' : 'Belum pernah dikirim' }}

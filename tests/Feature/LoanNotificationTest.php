@@ -138,5 +138,37 @@ class LoanNotificationTest extends TestCase
 
         Notification::assertSentTo($borrower, LoanDueReminderNotification::class);
     }
+
+    public function test_smtp_failure_is_handled_gracefully_and_routes_are_throttled(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $borrower = User::factory()->create(['role' => 'user', 'email' => 'siswa@gmail.com']);
+        $item = Item::factory()->create(['name' => 'Gelas Ukur', 'stock' => 5]);
+
+        $loan = Loan::factory()->for($borrower)->for($item)->create([
+            'status' => 'dipinjam',
+            'loan_date' => now()->subDay()->toDateString(),
+            'due_date' => now()->toDateString(),
+        ]);
+
+        // Simulasikan kegagalan koneksi SMTP saat pengiriman notifikasi
+        Notification::shouldReceive('send')
+            ->andThrow(new \RuntimeException('SMTP connection refused'));
+
+        $this->actingAs($admin)
+            ->from(route('loans.show', $loan))
+            ->post(route('loans.notify', $loan))
+            ->assertRedirect(route('loans.show', $loan))
+            ->assertSessionHas('error');
+
+        $this->assertNull($loan->fresh()->reminder_sent_at);
+
+        // Pastikan middleware throttle:10,1 terpasang pada kedua route notifikasi
+        $notifyRoute = app('router')->getRoutes()->getByName('loans.notify');
+        $bulkRoute = app('router')->getRoutes()->getByName('loans.notify-due');
+
+        $this->assertContains('throttle:10,1', $notifyRoute->gatherMiddleware());
+        $this->assertContains('throttle:10,1', $bulkRoute->gatherMiddleware());
+    }
 }
 

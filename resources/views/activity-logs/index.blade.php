@@ -16,6 +16,7 @@
         'reject_loan' => 'Tolak Peminjaman',
         'return_loan' => 'Catat Pengembalian',
         'notify_loan' => 'Kirim Pengingat Email',
+        'export_loan' => 'Ekspor Laporan',
         'delete_loan' => 'Hapus Peminjaman',
         'create_user' => 'Tambah User',
         'update_user' => 'Ubah User',
