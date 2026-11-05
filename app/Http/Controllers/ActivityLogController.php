@@ -25,7 +25,6 @@ class ActivityLogController extends Controller
                 $query->where(function ($sub) use ($search) {
                     $sub->where('description', 'like', "%{$search}%")
                         ->orWhere('action', 'like', "%{$search}%")
-                        ->orWhere('ip_address', 'like', "%{$search}%")
                         ->orWhereHas('user', function ($userQuery) use ($search) {
                             $userQuery->where('name', 'like', "%{$search}%")
                                 ->orWhere('email', 'like', "%{$search}%");

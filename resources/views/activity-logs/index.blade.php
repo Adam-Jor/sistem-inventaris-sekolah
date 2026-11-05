@@ -53,7 +53,7 @@
                                 name="search"
                                 value="{{ $search }}"
                                 class="form-control form-control-sm bg-white"
-                                placeholder="Cari deskripsi aktivitas, aksi, atau IP..."
+                                placeholder="Cari deskripsi aktivitas atau pelaku..."
                             >
                         </div>
 
@@ -100,8 +100,7 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Waktu</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pelaku</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Aksi</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Deskripsi Aktivitas</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 pe-4">Alamat IP</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 pe-4">Deskripsi Aktivitas</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -145,20 +144,15 @@
                                                 {{ $actionLabels[$log->action] ?? $log->action }}
                                             </span>
                                         </td>
-                                        <td>
-                                            <p class="text-xs text-dark font-weight-bold mb-0 text-wrap" style="max-width: 420px;">
+                                        <td class="pe-4">
+                                            <p class="text-xs text-dark font-weight-bold mb-0 text-wrap">
                                                 {{ $log->description }}
                                             </p>
-                                        </td>
-                                        <td class="align-middle text-center pe-4">
-                                            <span class="text-xs text-secondary font-weight-bold">
-                                                {{ $log->ip_address ?: '-' }}
-                                            </span>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-5">
+                                        <td colspan="5" class="text-center py-5">
                                             <p class="text-sm text-secondary mb-0">
                                                 {{ $hasFilters ? 'Tidak ada activity log yang cocok dengan filter Anda.' : 'Belum ada data aktivitas yang tercatat.' }}
                                             </p>
@@ -205,10 +199,6 @@
                                     <div class="mobile-row-field">
                                         <span class="mobile-field-label">Deskripsi</span>
                                         <span class="mobile-field-value">{{ $log->description }}</span>
-                                    </div>
-                                    <div class="mobile-row-field">
-                                        <span class="mobile-field-label">Alamat IP</span>
-                                        <span class="mobile-field-value">{{ $log->ip_address ?: '-' }}</span>
                                     </div>
                                 </div>
                             </div>
