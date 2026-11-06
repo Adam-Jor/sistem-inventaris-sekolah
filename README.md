@@ -53,7 +53,7 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek di komputer lokal:
 
 ### 1. Clone Repository
 ```bash
-git clone <url-repository-anda> sistem-inventaris-sekolah
+git clone https://github.com/Adam-Jor/sistem-inventaris-sekolah.git
 cd sistem-inventaris-sekolah
 ```
 
@@ -70,7 +70,7 @@ php artisan key:generate
 ```
 *(Di Windows PowerShell/CMD, Anda juga dapat menggunakan `copy .env.example .env`).*
 
-### 4. Konfigurasi Database & Email di `.env`
+### 4. Konfigurasi Database di `.env`
 Buat database baru di MySQL (contoh: `sistem_inventaris_sekolah`), lalu sesuaikan konfigurasi pada file `.env`:
 
 ```env
@@ -80,11 +80,6 @@ DB_PORT=3306
 DB_DATABASE=sistem_inventaris_sekolah
 DB_USERNAME=root
 DB_PASSWORD=
-
-# Konfigurasi Email (gunakan 'log' untuk pengembangan lokal atau SMTP untuk produksi)
-MAIL_MAILER=log
-MAIL_FROM_ADDRESS="inventaris@sekolah.test"
-MAIL_FROM_NAME="${APP_NAME}"
 ```
 
 ### 5. Jalankan Migrasi Database & Seeder
