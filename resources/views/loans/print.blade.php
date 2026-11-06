@@ -222,7 +222,7 @@
         </div>
         <div class="toolbar-actions">
             <a href="{{ route('loans.index', $queryFilter) }}" class="btn btn-outline">&larr; Kembali</a>
-            <a href="{{ route('loans.export.excel', $queryFilter) }}" class="btn btn-success">Unduh Excel (.csv)</a>
+            <a href="{{ route('loans.export.excel', $queryFilter) }}" class="btn btn-success">Unduh Excel (.xlsx)</a>
             <button type="button" onclick="window.print()" class="btn btn-primary">Cetak / Simpan PDF</button>
         </div>
     </div>

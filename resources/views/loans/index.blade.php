@@ -24,7 +24,7 @@
                         @endphp
                         <div class="d-flex flex-column flex-sm-row flex-wrap align-items-stretch align-items-sm-center justify-content-md-end gap-2 w-100 w-md-auto">
                             @if ($isAdmin)
-                                <a href="{{ route('loans.export.excel', $exportFilter) }}" class="btn btn-sm btn-outline-success mb-0 w-100 w-sm-auto" title="Unduh laporan peminjaman dalam format Excel (.csv)">
+                                <a href="{{ route('loans.export.excel', $exportFilter) }}" class="btn btn-sm btn-outline-success mb-0 w-100 w-sm-auto" title="Unduh laporan peminjaman dalam format Microsoft Excel (.xlsx)">
                                     Ekspor Excel
                                 </a>
 

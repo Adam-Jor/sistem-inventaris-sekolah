@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\Loan;
 use App\Notifications\LoanDueReminderNotification;
 use App\Services\ActivityLogger;
+use App\Services\LoanExcelExporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -361,7 +362,7 @@ class LoanController extends Controller
     }
 
     /**
-     * Ekspor data peminjaman ke format Excel (CSV dengan UTF-8 BOM) sesuai filter pencarian/status.
+     * Ekspor data peminjaman ke format Microsoft Excel (.xlsx) sesuai filter pencarian/status.
      */
     public function exportExcel(Request $request): StreamedResponse
     {
@@ -374,56 +375,16 @@ class LoanController extends Controller
 
         ActivityLogger::log(
             'export_loan',
-            "Mengekspor {$loans->count()} data peminjaman ke file Excel (CSV)."
+            "Mengekspor {$loans->count()} data peminjaman ke file Excel (.xlsx)."
         );
 
-        $filename = 'laporan-peminjaman-'.now()->format('Y-m-d').'.csv';
+        $filename = 'laporan-peminjaman-'.now()->format('Y-m-d').'.xlsx';
+        $xlsxBinary = LoanExcelExporter::generate($loans, $search, $status, now());
 
-        return response()->streamDownload(function () use ($loans) {
-            $handle = fopen('php://output', 'w');
-
-            // UTF-8 BOM agar Microsoft Excel langsung mengenali karakter dan kolom dengan benar
-            fwrite($handle, "\xEF\xBB\xBF");
-
-            fputcsv($handle, [
-                'No',
-                'Peminjam',
-                'Email Peminjam',
-                'Kode Barang',
-                'Nama Barang',
-                'Kategori',
-                'Jumlah (Unit)',
-                'Tanggal Pinjam',
-                'Jatuh Tempo',
-                'Status',
-                'Diverifikasi Oleh',
-                'Tanggal Dikembalikan',
-                'Kondisi Saat Kembali',
-                'Catatan',
-            ]);
-
-            foreach ($loans as $index => $loan) {
-                fputcsv($handle, [
-                    $index + 1,
-                    $loan->user?->name ?? '-',
-                    $loan->user?->email ?? '-',
-                    $loan->item?->code ?? '-',
-                    $loan->item?->name ?? '-',
-                    $loan->item?->category?->name ?? '-',
-                    $loan->quantity,
-                    $loan->loan_date?->format('Y-m-d') ?? '-',
-                    $loan->due_date?->format('Y-m-d') ?? '-',
-                    ucfirst($loan->status),
-                    $loan->approver?->name ?? '-',
-                    $loan->returnLog?->returned_at?->format('Y-m-d') ?? '-',
-                    $loan->returnLog ? ucwords($loan->returnLog->condition_on_return) : '-',
-                    $loan->notes ?? '-',
-                ]);
-            }
-
-            fclose($handle);
+        return response()->streamDownload(function () use ($xlsxBinary) {
+            echo $xlsxBinary;
         }, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 

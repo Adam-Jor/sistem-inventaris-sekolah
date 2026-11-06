@@ -34,11 +34,16 @@ class LoanExportTest extends TestCase
             ->get(route('loans.export.excel', ['status' => 'dipinjam']));
 
         $response->assertOk();
-        $this->assertStringContainsString('text/csv', (string) $response->headers->get('Content-Type'));
+        $this->assertStringContainsString(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            (string) $response->headers->get('Content-Type')
+        );
+        $this->assertStringContainsString('.xlsx', (string) $response->headers->get('Content-Disposition'));
 
-        $csvContent = $response->streamedContent();
-        $this->assertStringContainsString('Proyektor Kelas', $csvContent);
-        $this->assertStringNotContainsString('Bola Futsal', $csvContent);
+        $xlsxContent = $response->streamedContent();
+        $this->assertStringStartsWith('PK', $xlsxContent);
+        $this->assertStringContainsString('Proyektor Kelas', $xlsxContent);
+        $this->assertStringNotContainsString('Bola Futsal', $xlsxContent);
 
         $this->assertDatabaseHas('activity_logs', [
             'user_id' => $admin->id,
