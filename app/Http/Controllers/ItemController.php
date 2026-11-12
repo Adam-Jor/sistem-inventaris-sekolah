@@ -14,7 +14,7 @@ use Illuminate\View\View;
 class ItemController extends Controller
 {
     /**
-     * Tampilkan daftar barang dengan pencarian (nama/kode) dan filter (kategori, kondisi).
+     * Tampilkan daftar barang dengan pencarian (nama/kode) dan filter (kategori, kondisi, ketersediaan stok).
      * Dapat diakses oleh Admin maupun User.
      */
     public function index(Request $request): View
@@ -22,6 +22,7 @@ class ItemController extends Controller
         $search = $request->string('search')->trim()->toString();
         $categoryId = $request->input('category_id', '');
         $condition = $request->string('condition')->trim()->toString();
+        $availability = $request->string('availability')->trim()->toString();
         $perPage = $this->resolvePerPage($request);
 
         $items = Item::query()
@@ -38,13 +39,22 @@ class ItemController extends Controller
             ->when($condition !== '', function ($query) use ($condition) {
                 $query->where('condition', $condition);
             })
+            ->when($availability !== '', function ($query) use ($availability) {
+                match ($availability) {
+                    'available' => $query->where('stock', '>', 0),
+                    'ready' => $query->available(),
+                    'low' => $query->where('stock', '<=', 2),
+                    'out' => $query->where('stock', '<=', 0),
+                    default => null,
+                };
+            })
             ->orderBy('name')
             ->paginate($perPage)
             ->withQueryString();
 
         $categories = Category::orderBy('name')->get();
 
-        return view('items.index', compact('items', 'categories', 'search', 'categoryId', 'condition', 'perPage'));
+        return view('items.index', compact('items', 'categories', 'search', 'categoryId', 'condition', 'availability', 'perPage'));
     }
 
     /**

@@ -34,20 +34,62 @@ class ItemTest extends TestCase
             'condition' => 'rusak berat',
         ]);
 
+        $outOfStockItem = Item::factory()->create([
+            'category_id' => $category->id,
+            'name' => 'Kabel HDMI',
+            'code' => 'ELK-003',
+            'stock' => 0,
+            'condition' => 'baik',
+        ]);
+
         // Admin index
         $this->actingAs($admin)
             ->get(route('items.index'))
             ->assertOk()
             ->assertSee('Proyektor LCD')
-            ->assertSee('Proyektor Lama');
+            ->assertSee('Proyektor Lama')
+            ->assertSee('Kabel HDMI');
 
         // User index + filter condition=baik + tombol Ajukan Peminjaman
         $this->actingAs($user)
             ->get(route('items.index', ['condition' => 'baik']))
             ->assertOk()
             ->assertSee('Proyektor LCD')
+            ->assertSee('Kabel HDMI')
             ->assertDontSee('Proyektor Lama')
             ->assertSee('Ajukan Peminjaman');
+
+        // Filter availability=ready (Siap Dipinjam: stok > 0 & kondisi baik)
+        $this->actingAs($user)
+            ->get(route('items.index', ['availability' => 'ready']))
+            ->assertOk()
+            ->assertSee('Proyektor LCD')
+            ->assertDontSee('Proyektor Lama')
+            ->assertDontSee('Kabel HDMI');
+
+        // Filter availability=available (Stok > 0)
+        $this->actingAs($user)
+            ->get(route('items.index', ['availability' => 'available']))
+            ->assertOk()
+            ->assertSee('Proyektor LCD')
+            ->assertSee('Proyektor Lama')
+            ->assertDontSee('Kabel HDMI');
+
+        // Filter availability=low (Stok <= 2)
+        $this->actingAs($admin)
+            ->get(route('items.index', ['availability' => 'low']))
+            ->assertOk()
+            ->assertSee('Proyektor Lama')
+            ->assertSee('Kabel HDMI')
+            ->assertDontSee('Proyektor LCD');
+
+        // Filter availability=out (Stok Habis = 0)
+        $this->actingAs($admin)
+            ->get(route('items.index', ['availability' => 'out']))
+            ->assertOk()
+            ->assertSee('Kabel HDMI')
+            ->assertDontSee('Proyektor LCD')
+            ->assertDontSee('Proyektor Lama');
 
         // Detail page
         $this->actingAs($user)

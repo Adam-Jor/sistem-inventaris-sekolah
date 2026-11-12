@@ -1,7 +1,8 @@
 @php
     $isAdmin = auth()->user()->isAdmin();
     $pageTitle = $isAdmin ? 'Data Barang' : 'Daftar Barang';
-    $hasFilters = $search !== '' || ($categoryId !== '' && $categoryId !== null) || $condition !== '';
+    $availability = $availability ?? '';
+    $hasFilters = $search !== '' || ($categoryId !== '' && $categoryId !== null) || $condition !== '' || $availability !== '';
 @endphp
 
 <x-app-layout :title="$pageTitle" :breadcrumbs="[$pageTitle => null]">
@@ -30,12 +31,18 @@
 
                     @php
                         $baseQuery = ($perPage ?? 10) !== 10 ? ['per_page' => $perPage] : [];
+                        $availabilityLabels = [
+                            'available' => 'Stok Tersedia (> 0)',
+                            'ready' => 'Siap Dipinjam',
+                            'low' => 'Stok Menipis (≤ 2)',
+                            'out' => 'Stok Habis (0)',
+                        ];
                         $activeFilters = [];
                         if ($search !== '') {
                             $activeFilters[] = [
                                 'label' => 'Pencarian',
                                 'value' => $search,
-                                'url' => route('items.index', array_filter($baseQuery + ['category_id' => $categoryId, 'condition' => $condition], fn ($v) => $v !== '' && $v !== null)),
+                                'url' => route('items.index', array_filter($baseQuery + ['category_id' => $categoryId, 'condition' => $condition, 'availability' => $availability], fn ($v) => $v !== '' && $v !== null)),
                             ];
                         }
                         if ($categoryId !== '' && $categoryId !== null) {
@@ -43,14 +50,21 @@
                             $activeFilters[] = [
                                 'label' => 'Kategori',
                                 'value' => $catName,
-                                'url' => route('items.index', array_filter($baseQuery + ['search' => $search, 'condition' => $condition], fn ($v) => $v !== '' && $v !== null)),
+                                'url' => route('items.index', array_filter($baseQuery + ['search' => $search, 'condition' => $condition, 'availability' => $availability], fn ($v) => $v !== '' && $v !== null)),
                             ];
                         }
                         if ($condition !== '') {
                             $activeFilters[] = [
                                 'label' => 'Kondisi',
                                 'value' => ucwords($condition),
-                                'url' => route('items.index', array_filter($baseQuery + ['search' => $search, 'category_id' => $categoryId], fn ($v) => $v !== '' && $v !== null)),
+                                'url' => route('items.index', array_filter($baseQuery + ['search' => $search, 'category_id' => $categoryId, 'availability' => $availability], fn ($v) => $v !== '' && $v !== null)),
+                            ];
+                        }
+                        if ($availability !== '') {
+                            $activeFilters[] = [
+                                'label' => 'Stok',
+                                'value' => $availabilityLabels[$availability] ?? $availability,
+                                'url' => route('items.index', array_filter($baseQuery + ['search' => $search, 'category_id' => $categoryId, 'condition' => $condition], fn ($v) => $v !== '' && $v !== null)),
                             ];
                         }
                     @endphp
@@ -60,7 +74,7 @@
                         @if (($perPage ?? 10) !== 10)
                             <input type="hidden" name="per_page" value="{{ $perPage }}">
                         @endif
-                        <div class="col-12 col-md-6 col-lg-4">
+                        <div class="col-12 col-md-6 col-lg-3">
                             <x-search-input
                                 name="search"
                                 :value="$search"
@@ -68,7 +82,7 @@
                             />
                         </div>
 
-                        <div class="col-6 col-md-3 col-lg-3">
+                        <div class="col-6 col-md-6 col-lg-3">
                             <select name="category_id" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Kategori</option>
                                 @foreach ($categories as $category)
@@ -79,7 +93,7 @@
                             </select>
                         </div>
 
-                        <div class="col-6 col-md-3 col-lg-3">
+                        <div class="col-6 col-md-4 col-lg-2">
                             <select name="condition" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" class="form-select form-select-sm bg-white">
                                 <option value="">Semua Kondisi</option>
                                 <option value="baik" @selected($condition === 'baik')>Baik</option>
@@ -88,7 +102,17 @@
                             </select>
                         </div>
 
-                        <div class="col-12 col-lg-2 d-flex gap-2">
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <select name="availability" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()" class="form-select form-select-sm bg-white">
+                                <option value="">Semua Stok</option>
+                                <option value="available" @selected($availability === 'available')>Stok Tersedia (&gt; 0)</option>
+                                <option value="ready" @selected($availability === 'ready')>Siap Dipinjam</option>
+                                <option value="low" @selected($availability === 'low')>Stok Menipis (&le; 2)</option>
+                                <option value="out" @selected($availability === 'out')>Stok Habis (0)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-6 col-md-4 col-lg-2 d-flex gap-2">
                             <button type="submit" class="btn btn-sm bg-gradient-dark mb-0 w-100">Filter</button>
                             @if ($hasFilters)
                                 <a href="{{ route('items.index', $baseQuery) }}" class="btn btn-sm btn-outline-secondary mb-0 px-3">Reset</a>

@@ -342,7 +342,7 @@
                         <h6 class="mb-0">Stok Menipis</h6>
                         <p class="text-xs text-secondary mb-0">Barang dengan stok &le; {{ $lowStockThreshold }} unit</p>
                     </div>
-                    <a href="{{ route('items.index') }}" class="text-xs font-weight-bold text-primary flex-shrink-0">Kelola Barang</a>
+                    <a href="{{ route('items.index', ['availability' => 'low']) }}" class="text-xs font-weight-bold text-primary flex-shrink-0">Kelola Barang</a>
                 </div>
                 <div class="card-body p-3">
                     @forelse ($lowStockItems as $item)
