@@ -157,10 +157,15 @@ class Loan extends Model
      */
     public static function syncOverdueStatuses(): int
     {
-        return static::query()
+        $query = static::query()
             ->where('status', 'dipinjam')
-            ->whereDate('due_date', '<', now()->toDateString())
-            ->update(['status' => 'terlambat']);
+            ->where('due_date', '<', now()->toDateString());
+
+        if (! (clone $query)->exists()) {
+            return 0;
+        }
+
+        return $query->update(['status' => 'terlambat']);
     }
 
     /**
@@ -181,17 +186,17 @@ class Loan extends Model
             $end = now()->endOfMonth();
         }
 
-        $loans = static::query()
-            ->whereDate('loan_date', '>=', $start->toDateString())
-            ->whereDate('loan_date', '<=', $end->toDateString())
-            ->get(['loan_date', 'status']);
+        $loansByMonth = static::query()
+            ->whereBetween('loan_date', [$start->toDateString(), $end->toDateString()])
+            ->get(['loan_date', 'status'])
+            ->groupBy(fn (self $loan) => $loan->loan_date?->format('Y-m'));
 
         $currentMonthKey = now()->format('Y-m');
 
-        return collect(range(0, $totalMonths - 1))->map(function (int $offset) use ($start, $loans, $approvedStatuses, $currentMonthKey) {
+        return collect(range(0, $totalMonths - 1))->map(function (int $offset) use ($start, $loansByMonth, $approvedStatuses, $currentMonthKey) {
             $month = $start->copy()->addMonths($offset);
             $monthKey = $month->format('Y-m');
-            $monthLoans = $loans->filter(fn (self $loan) => $loan->loan_date?->format('Y-m') === $monthKey);
+            $monthLoans = $loansByMonth->get($monthKey, collect());
 
             return [
                 'key' => $monthKey,

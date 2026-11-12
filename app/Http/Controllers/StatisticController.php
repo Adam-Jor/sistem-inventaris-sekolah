@@ -39,8 +39,9 @@ class StatisticController extends Controller
     {
         Loan::syncOverdueStatuses();
 
-        $availableYears = $this->availableYears();
-        $availableMonths = $this->availableMonths();
+        $distinctLoanDates = $this->distinctLoanDates();
+        $availableYears = $this->availableYears($distinctLoanDates);
+        $availableMonths = $this->availableMonths($distinctLoanDates);
         $trendOptions = $this->buildTrendOptions($availableYears);
 
         // 1. Cek apakah Admin memilih bulan spesifik (?month=YYYY-MM)
@@ -100,9 +101,18 @@ class StatisticController extends Controller
             ? $this->weeklyBreakdownForMonth($startDate, $endDate)
             : collect();
 
-        $borrowerStats = $this->borrowerStats($startDate, $endDate);
+        // Ambil distribusi status & daftar peminjaman disetujui sekali saja untuk dipakai bersama
         $statusDistribution = $this->statusDistribution($startDate, $endDate);
-        $conditionDistribution = $this->conditionDistribution();
+        $approvedLoans = $this->loansInPeriod($startDate, $endDate)
+            ->with(['user', 'returnLog', 'item.category'])
+            ->whereIn('status', self::APPROVED_STATUSES)
+            ->get();
+
+        $borrowerStats = $this->borrowerStats($approvedLoans);
+
+        // Ambil ringkasan kondisi & stok seluruh barang sekali saja
+        $allItems = Item::query()->get(['condition', 'stock']);
+        $conditionDistribution = $this->conditionDistribution($allItems);
 
         return view('statistics.index', [
             'period' => $period,
@@ -117,16 +127,16 @@ class StatisticController extends Controller
             'trendTitle' => $trendTitle,
             'startDate' => $startDate,
             'endDate' => $endDate,
-            'summary' => $this->summary($startDate, $endDate),
+            'summary' => $this->summary($statusDistribution, $approvedLoans),
             'statusDistribution' => $statusDistribution,
             'statusSunburst' => $this->statusSunburst($statusDistribution),
             'monthlyTrend' => $monthlyTrend,
             'topItems' => $this->topItems($startDate, $endDate),
             'topBorrowers' => $this->topBorrowers($borrowerStats),
             'lateBorrowers' => $this->lateBorrowers($borrowerStats),
-            'topCategories' => $this->topCategories($startDate, $endDate),
+            'topCategories' => $this->topCategories($approvedLoans),
             'conditionDistribution' => $conditionDistribution,
-            'conditionSunburst' => $this->conditionSunburst(),
+            'conditionSunburst' => $this->conditionSunburst($allItems),
             'lowStockItems' => $this->lowStockItems(),
             'idleItems' => $this->idleItems($startDate, $endDate),
             'lowStockThreshold' => self::LOW_STOCK_THRESHOLD,
@@ -156,20 +166,26 @@ class StatisticController extends Controller
     }
 
     /**
+     * Ambil daftar tanggal pinjam unik dalam satu query ringan (tanpa hydrate seluruh model Loan).
+     */
+    private function distinctLoanDates(): Collection
+    {
+        return Loan::query()
+            ->distinct()
+            ->pluck('loan_date')
+            ->filter()
+            ->map(fn ($date) => $date instanceof Carbon ? $date : Carbon::parse((string) $date));
+    }
+
+    /**
      * Daftar tahun yang tersedia untuk filter grafik tren tahunan.
      */
-    private function availableYears(): Collection
+    private function availableYears(Collection $distinctLoanDates): Collection
     {
         $currentYear = (int) now()->year;
-        $loanYears = Loan::query()
-            ->select('loan_date')
-            ->get()
-            ->map(fn (Loan $loan) => $loan->loan_date?->year)
-            ->filter()
-            ->unique()
-            ->values();
 
-        return $loanYears
+        return $distinctLoanDates
+            ->map(fn (Carbon $date) => $date->year)
             ->push($currentYear)
             ->unique()
             ->sortDesc()
@@ -179,16 +195,10 @@ class StatisticController extends Controller
     /**
      * Daftar bulan tersedia (12 bulan terakhir + bulan dari histori transaksi) untuk pemilih bulan.
      */
-    private function availableMonths(): Collection
+    private function availableMonths(Collection $distinctLoanDates): Collection
     {
         $months = collect(range(0, 11))->map(fn (int $i) => now()->startOfMonth()->subMonths($i)->format('Y-m'));
-
-        $loanMonths = Loan::query()
-            ->select('loan_date')
-            ->get()
-            ->map(fn (Loan $loan) => $loan->loan_date?->format('Y-m'))
-            ->filter()
-            ->unique();
+        $loanMonths = $distinctLoanDates->map(fn (Carbon $date) => $date->format('Y-m'))->unique();
 
         return $months
             ->merge($loanMonths)
@@ -264,42 +274,39 @@ class StatisticController extends Controller
     }
 
     /**
-     * Query dasar peminjaman yang sudah difilter sesuai periode atau bulan.
+     * Query dasar peminjaman yang sudah difilter sesuai periode atau bulan (sargable untuk index loan_date).
      */
     private function loansInPeriod(?Carbon $startDate, ?Carbon $endDate = null): Builder
     {
         return Loan::query()
             ->when(
                 $startDate,
-                fn (Builder $query) => $query->whereDate('loan_date', '>=', $startDate->toDateString())
+                fn (Builder $query) => $query->where('loan_date', '>=', $startDate->toDateString())
             )
             ->when(
                 $endDate,
-                fn (Builder $query) => $query->whereDate('loan_date', '<=', $endDate->toDateString())
+                fn (Builder $query) => $query->where('loan_date', '<=', $endDate->toDateString())
             );
     }
 
     /**
-     * Ringkasan angka utama (KPI).
+     * Ringkasan angka utama (KPI) dihitung dari distribusi status & koleksi pinjaman disetujui tanpa query berulang.
      */
-    private function summary(?Carbon $startDate, ?Carbon $endDate = null): array
+    private function summary(Collection $statusDistribution, Collection $approvedLoans): array
     {
-        $totalRequests = $this->loansInPeriod($startDate, $endDate)->count();
+        $byKey = $statusDistribution->keyBy('key');
+        $totalRequests = (int) $statusDistribution->sum('count');
+        $approvedCount = $approvedLoans->count();
+        $unitsBorrowed = (int) $approvedLoans->sum('quantity');
+        $activeBorrowers = $approvedLoans->pluck('user_id')->unique()->count();
 
-        $approvedQuery = $this->loansInPeriod($startDate, $endDate)->whereIn('status', self::APPROVED_STATUSES);
-        $approvedCount = (clone $approvedQuery)->count();
-        $unitsBorrowed = (int) (clone $approvedQuery)->sum('quantity');
-        $activeBorrowers = (clone $approvedQuery)->distinct()->count('user_id');
-
-        $rejectedCount = $this->loansInPeriod($startDate, $endDate)->where('status', 'ditolak')->count();
+        $rejectedCount = (int) ($byKey['ditolak']['count'] ?? 0);
         $decidedCount = $approvedCount + $rejectedCount;
 
         // Peminjaman yang sudah dikembalikan beserta relasi catatan pengembaliannya.
-        $returnedLoans = $this->loansInPeriod($startDate, $endDate)
-            ->with('returnLog')
-            ->where('status', 'dikembalikan')
-            ->whereHas('returnLog')
-            ->get();
+        $returnedLoans = $approvedLoans->filter(
+            fn (Loan $loan) => $loan->status === 'dikembalikan' && $loan->returnLog !== null
+        );
 
         $onTimeCount = $returnedLoans->filter(
             fn (Loan $loan) => $loan->returnLog?->returned_at !== null
@@ -374,14 +381,11 @@ class StatisticController extends Controller
     }
 
     /**
-     * Agregasi statistik per peminjam menggunakan Eloquent Relationship (tanpa manual JOIN).
+     * Agregasi statistik per peminjam dari koleksi pinjaman yang sudah dimuat.
      */
-    private function borrowerStats(?Carbon $startDate, ?Carbon $endDate = null): Collection
+    private function borrowerStats(Collection $approvedLoans): Collection
     {
-        return $this->loansInPeriod($startDate, $endDate)
-            ->with(['user', 'returnLog'])
-            ->whereIn('status', self::APPROVED_STATUSES)
-            ->get()
+        return $approvedLoans
             ->groupBy('user_id')
             ->map(function (Collection $loans, $userId) {
                 $lateCount = $loans->filter(function (Loan $loan) {
@@ -429,14 +433,11 @@ class StatisticController extends Controller
     }
 
     /**
-     * Kategori barang yang paling diminati menggunakan Eloquent Relationship.
+     * Kategori barang yang paling diminati dari koleksi pinjaman yang sudah dimuat.
      */
-    private function topCategories(?Carbon $startDate, ?Carbon $endDate = null): Collection
+    private function topCategories(Collection $approvedLoans): Collection
     {
-        return $this->loansInPeriod($startDate, $endDate)
-            ->with('item.category')
-            ->whereIn('status', self::APPROVED_STATUSES)
-            ->get()
+        return $approvedLoans
             ->filter(fn (Loan $loan) => $loan->item?->category !== null)
             ->groupBy(fn (Loan $loan) => $loan->item->category->id)
             ->map(function (Collection $loans) {
@@ -457,15 +458,10 @@ class StatisticController extends Controller
     /**
      * Distribusi kondisi seluruh barang inventaris.
      */
-    private function conditionDistribution(): Collection
+    private function conditionDistribution(Collection $allItems): Collection
     {
-        $counts = Item::query()
-            ->select('condition')
-            ->selectRaw('COUNT(*) as total')
-            ->groupBy('condition')
-            ->pluck('total', 'condition');
-
-        $total = max(1, (int) $counts->sum());
+        $counts = $allItems->countBy('condition');
+        $total = max(1, $allItems->count());
 
         return collect([
             'baik' => ['label' => 'Baik', 'color' => 'success'],
@@ -568,9 +564,8 @@ class StatisticController extends Controller
      * Cincin dalam: Kondisi Fisik (Baik, Rusak Ringan, Rusak Berat).
      * Cincin luar: Rincian Ketersediaan Stok per Kondisi (tanpa warna neon).
      */
-    private function conditionSunburst(): array
+    private function conditionSunburst(Collection $items): array
     {
-        $items = Item::query()->get(['condition', 'stock']);
         $total = $items->count();
 
         $baikItems = $items->where('condition', 'baik');
@@ -669,8 +664,8 @@ class StatisticController extends Controller
     {
         $query = Item::with('category')->whereDoesntHave('loans', function (Builder $loanQuery) use ($startDate, $endDate) {
             $loanQuery->whereIn('status', self::APPROVED_STATUSES)
-                ->when($startDate, fn (Builder $q) => $q->whereDate('loan_date', '>=', $startDate->toDateString()))
-                ->when($endDate, fn (Builder $q) => $q->whereDate('loan_date', '<=', $endDate->toDateString()));
+                ->when($startDate, fn (Builder $q) => $q->where('loan_date', '>=', $startDate->toDateString()))
+                ->when($endDate, fn (Builder $q) => $q->where('loan_date', '<=', $endDate->toDateString()));
         });
 
         return [

@@ -32,12 +32,21 @@ class DashboardController extends Controller
      */
     protected function adminDashboard(): View
     {
+        $today = now()->toDateString();
+        $loanCounts = Loan::query()
+            ->selectRaw("
+                COALESCE(SUM(CASE WHEN status = 'dipinjam' THEN 1 ELSE 0 END), 0) as active_loans,
+                COALESCE(SUM(CASE WHEN status = 'menunggu' THEN 1 ELSE 0 END), 0) as waiting_loans,
+                COALESCE(SUM(CASE WHEN status = 'terlambat' OR (status = 'dipinjam' AND due_date < ?) THEN 1 ELSE 0 END), 0) as overdue_loans
+            ", [$today])
+            ->first();
+
         $stats = [
             'total_items' => Item::count(),
             'total_categories' => Category::count(),
-            'active_loans' => Loan::active()->count(),
-            'waiting_loans' => Loan::waiting()->count(),
-            'overdue_loans' => Loan::overdue()->count(),
+            'active_loans' => (int) ($loanCounts->active_loans ?? 0),
+            'waiting_loans' => (int) ($loanCounts->waiting_loans ?? 0),
+            'overdue_loans' => (int) ($loanCounts->overdue_loans ?? 0),
         ];
 
         $recentLoans = Loan::with(['user', 'item.category'])
@@ -60,11 +69,21 @@ class DashboardController extends Controller
      */
     protected function userDashboard($user): View
     {
+        $today = now()->toDateString();
+        $loanCounts = $user->loans()
+            ->selectRaw("
+                COALESCE(SUM(CASE WHEN status = 'dipinjam' THEN 1 ELSE 0 END), 0) as active_loans,
+                COALESCE(SUM(CASE WHEN status = 'menunggu' THEN 1 ELSE 0 END), 0) as waiting_loans,
+                COALESCE(SUM(CASE WHEN status = 'terlambat' OR (status = 'dipinjam' AND due_date < ?) THEN 1 ELSE 0 END), 0) as overdue_loans,
+                COALESCE(SUM(CASE WHEN status = 'dikembalikan' THEN 1 ELSE 0 END), 0) as returned_loans
+            ", [$today])
+            ->first();
+
         $stats = [
-            'active_loans' => $user->loans()->active()->count(),
-            'waiting_loans' => $user->loans()->waiting()->count(),
-            'overdue_loans' => $user->loans()->overdue()->count(),
-            'returned_loans' => $user->loans()->returned()->count(),
+            'active_loans' => (int) ($loanCounts->active_loans ?? 0),
+            'waiting_loans' => (int) ($loanCounts->waiting_loans ?? 0),
+            'overdue_loans' => (int) ($loanCounts->overdue_loans ?? 0),
+            'returned_loans' => (int) ($loanCounts->returned_loans ?? 0),
         ];
 
         $nearestDueLoans = $user->loans()
