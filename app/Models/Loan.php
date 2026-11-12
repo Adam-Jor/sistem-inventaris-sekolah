@@ -164,26 +164,43 @@ class Loan extends Model
     }
 
     /**
-     * Tren jumlah pengajuan & peminjaman disetujui selama 6 bulan terakhir.
+     * Tren jumlah pengajuan & peminjaman disetujui per bulan.
+     * Mendukung rentang N bulan terakhir (6 / 12 bulan) atau 1 tahun kalender penuh (Jan–Des).
      */
-    public static function monthlyTrend(): \Illuminate\Support\Collection
+    public static function monthlyTrend(int $months = 6, ?int $year = null): \Illuminate\Support\Collection
     {
-        $start = now()->startOfMonth()->subMonths(5);
         $approvedStatuses = ['dipinjam', 'terlambat', 'dikembalikan'];
+
+        if ($year !== null) {
+            $start = \Carbon\Carbon::create($year, 1, 1)->startOfMonth();
+            $end = \Carbon\Carbon::create($year, 12, 1)->endOfMonth();
+            $totalMonths = 12;
+        } else {
+            $totalMonths = max(1, $months);
+            $start = now()->startOfMonth()->subMonths($totalMonths - 1);
+            $end = now()->endOfMonth();
+        }
 
         $loans = static::query()
             ->whereDate('loan_date', '>=', $start->toDateString())
+            ->whereDate('loan_date', '<=', $end->toDateString())
             ->get(['loan_date', 'status']);
 
-        return collect(range(0, 5))->map(function (int $offset) use ($start, $loans, $approvedStatuses) {
+        $currentMonthKey = now()->format('Y-m');
+
+        return collect(range(0, $totalMonths - 1))->map(function (int $offset) use ($start, $loans, $approvedStatuses, $currentMonthKey) {
             $month = $start->copy()->addMonths($offset);
-            $monthLoans = $loans->filter(fn (self $loan) => $loan->loan_date?->format('Y-m') === $month->format('Y-m'));
+            $monthKey = $month->format('Y-m');
+            $monthLoans = $loans->filter(fn (self $loan) => $loan->loan_date?->format('Y-m') === $monthKey);
 
             return [
+                'key' => $monthKey,
                 'label' => $month->translatedFormat('M'),
+                'short_year' => $month->format('y'),
                 'full_label' => $month->translatedFormat('F Y'),
                 'requests' => $monthLoans->count(),
                 'approved' => $monthLoans->whereIn('status', $approvedStatuses)->count(),
+                'is_current' => $monthKey === $currentMonthKey,
             ];
         });
     }

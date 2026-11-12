@@ -63,6 +63,14 @@ class StatisticTest extends TestCase
         $this->assertSame(5, $summary['total_requests']);
         $this->assertSame(4, $summary['approved_count']);
         $this->assertSame(0.0, (float) $summary['on_time_rate']);
+
+        $statusSunburst = $response->viewData('statusSunburst');
+        $this->assertSame(5, $statusSunburst['total']);
+        $this->assertCount(3, $statusSunburst['groups']);
+
+        $conditionSunburst = $response->viewData('conditionSunburst');
+        $this->assertSame(3, $conditionSunburst['total']);
+        $this->assertCount(3, $conditionSunburst['groups']);
     }
 
     public function test_statistics_can_be_filtered_by_period(): void
@@ -87,6 +95,25 @@ class StatisticTest extends TestCase
             ->assertOk()
             ->assertViewHas('period', 'all')
             ->assertViewHas('topItems', fn ($items) => $items->count() === 1);
+
+        // Filter bulan spesifik (?month=YYYY-MM) dan rentang grafik tren (?trend=6m|12m|year:YYYY)
+        $targetMonth = now()->subMonths(2)->format('Y-m');
+        $monthItem = Item::factory()->create(['name' => 'Kamera Bulan Tertentu']);
+        Loan::factory()->for($monthItem)->create([
+            'status' => 'dipinjam',
+            'loan_date' => $targetMonth.'-10',
+            'due_date' => $targetMonth.'-15',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('statistics.index', ['month' => $targetMonth, 'trend' => '6m']))
+            ->assertOk()
+            ->assertViewHas('selectedMonth', $targetMonth)
+            ->assertViewHas('trendRange', '6m')
+            ->assertViewHas('monthlyTrend', fn ($trend) => $trend->count() === 6)
+            ->assertViewHas('selectedMonthWeeks', fn ($weeks) => $weeks->isNotEmpty())
+            ->assertViewHas('topItems', fn ($items) => $items->count() === 1 && $items->first()->item_id === $monthItem->id)
+            ->assertSee('Kamera Bulan Tertentu');
     }
 
     public function test_non_admin_cannot_access_statistics(): void

@@ -818,119 +818,443 @@ td.text-center > .badge {
 }
 
 /* ==========================================================================
-   8. Dashboard Statistik (KPI, Grafik Batang CSS, Peringkat & Progress)
+   8. Dashboard Admin & Statistik (Unslop: Ink Neutral Ramp, 4px Grid, Tabular)
    ========================================================================== */
 .min-w-0 {
     min-width: 0;
 }
 
-/* Filter periode (segmented control) */
-.stat-period-switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem;
-    background-color: #f1f5f9;
-    border-radius: 0.75rem;
-    max-width: 100%;
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Permukaan Kartu Bersih dengan Hairline (8% Primary Text) & Radius 12px */
+.stat-surface-card,
+.stat-kpi-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(17, 24, 39, 0.08) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04) !important;
+}
+
+.stat-header-card {
+    position: relative;
+    z-index: 30;
+    overflow: visible !important;
+}
+
+.stat-trend-card {
+    position: relative;
+    z-index: 20;
+    overflow: visible !important;
+}
+
+.stat-surface-card > .card-header {
+    background-color: transparent;
+    padding: 1.25rem 1.25rem 0 !important;
+}
+
+.stat-surface-card > .card-body {
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+/* Eyebrow, Status Dot & Tipografi Header */
+.stat-live-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: #2563eb;
+    display: inline-block;
     flex-shrink: 0;
 }
 
-.stat-period-link {
-    padding: 0.45rem 0.9rem;
-    border-radius: 0.55rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #64748b;
-    text-align: center;
-    white-space: nowrap;
-    transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
-}
-
-.stat-period-link:hover {
-    color: #2563eb;
-}
-
-.stat-period-link.active {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
-}
-
-/* Kartu KPI */
-.stat-kpi-card {
-    border: 1px solid #eef2f7;
-}
-
-.stat-kpi-label {
+.stat-eyebrow {
     font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7487;
+    line-height: 1rem;
+}
+
+.stat-page-title {
+    font-size: 1.25rem;
     font-weight: 600;
-    color: #64748b;
+    color: #111827;
+    letter-spacing: -0.015em;
     line-height: 1.3;
 }
 
-.stat-kpi-icon {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.65rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+.stat-page-subtitle {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #4b5565;
+    line-height: 1.45;
 }
 
-.stat-kpi-icon svg {
-    width: 1.1rem;
-    height: 1.1rem;
-}
-
-.stat-kpi-value {
-    font-size: 1.55rem;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -0.02em;
-    margin: 0.35rem 0 0.15rem;
-    line-height: 1.15;
-}
-
-.stat-kpi-unit {
-    font-size: 0.8rem;
+.stat-section-title {
+    font-size: 0.9375rem;
     font-weight: 600;
-    color: #64748b;
-}
-
-.stat-kpi-hint {
-    font-size: 0.72rem;
-    color: #64748b;
+    color: #111827;
     line-height: 1.35;
 }
 
-.bg-soft-primary { background-color: #ede9fe; color: #7c3aed; }
-.bg-soft-info { background-color: #dbeafe; color: #2563eb; }
-.bg-soft-success { background-color: #dcfce7; color: #16a34a; }
-.bg-soft-warning { background-color: #fff0db; color: #d97706; }
+.stat-section-subtitle {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #6b7487;
+    line-height: 1.35;
+    margin-top: 0.125rem;
+}
 
-/* Warna solid untuk legend, stacked bar & progress */
-.bg-stat-warning { background-color: #f59e0b; }
-.bg-stat-info { background-color: #3b82f6; }
-.bg-stat-danger { background-color: #ef4444; }
-.bg-stat-success { background-color: #22c55e; }
+.stat-quiet-action {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #4b5565;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    transition: color 0.15s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-quiet-action:hover {
+    color: #2563eb;
+    background-color: #eceff4;
+}
+
+/* Signature Detail: Tag Kode Barang Monospasi (Buku Induk Inventaris) */
+.stat-code-tag {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #4b5565;
+    background-color: #eceff4;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 0.25rem;
+    padding: 0.0625rem 0.375rem;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Tombol Filter dengan Ikon Filter & Popover (Pengganti Bar Inline, 4px Grid) */
+.stat-filter-dropdown-wrap {
+    position: relative;
+}
+
+.stat-filter-icon {
+    color: #6b7487;
+    flex-shrink: 0;
+    transition: color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-filter-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #111827;
+    background-color: #f8fafc;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-filter-trigger:hover {
+    background-color: #eceff4;
+    border-color: rgba(17, 24, 39, 0.14);
+}
+
+.stat-filter-trigger:hover .stat-filter-icon {
+    color: #4b5565;
+}
+
+.stat-filter-trigger.is-active {
+    background-color: #eff6ff;
+    border-color: rgba(37, 99, 235, 0.28);
+    color: #2563eb;
+}
+
+.stat-filter-trigger.is-active .stat-filter-icon {
+    color: #2563eb;
+}
+
+.stat-filter-meta {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #2563eb;
+}
+
+.stat-filter-reset-inline {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7487;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    transition: color 0.15s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-filter-reset-inline:hover {
+    color: #dc2626;
+    background-color: #fef2f2;
+}
+
+/* Tombol Ikon Filter di dalam Header Tren Peminjaman (32px tinggi, 8px radius) */
+.stat-icon-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4b5565;
+    background-color: #f8fafc;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-icon-filter-btn:hover {
+    background-color: #eceff4;
+    color: #111827;
+}
+
+.stat-icon-filter-btn.is-active {
+    background-color: #eff6ff;
+    border-color: rgba(37, 99, 235, 0.28);
+    color: #2563eb;
+}
+
+.stat-icon-filter-btn.is-active .stat-filter-icon {
+    color: #2563eb;
+}
+
+/* Panel Popover Filter (16px padding, 12px radius -> 8px opsi internal) */
+.stat-filter-popover {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 19rem;
+    max-width: calc(100vw - 2rem);
+    padding: 1rem;
+    background-color: #ffffff;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08), 0 1px 2px rgba(17, 24, 39, 0.04);
+    z-index: 1050;
+}
+
+.stat-filter-popover-sm {
+    width: 16.5rem;
+}
+
+.stat-filter-popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.stat-filter-popover-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.stat-filter-popover-reset {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.stat-filter-popover-reset:hover {
+    text-decoration: underline;
+}
+
+.stat-filter-group {
+    margin-bottom: 0.75rem;
+}
+
+.stat-filter-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7487;
+    margin-bottom: 0.375rem;
+}
+
+.stat-filter-pill-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.stat-filter-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4b5565;
+    background-color: #f8fafc;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-filter-option:hover {
+    background-color: #eceff4;
+    color: #111827;
+}
+
+.stat-filter-option.active {
+    background-color: #eff6ff;
+    border-color: rgba(37, 99, 235, 0.32);
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.form-select.stat-popover-select {
+    width: 100%;
+    height: 2.25rem !important;
+    padding: 0.25rem 2rem 0.25rem 0.75rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    color: #111827 !important;
+    background-color: #f8fafc !important;
+    border: 1px solid rgba(17, 24, 39, 0.08) !important;
+    border-radius: 0.5rem !important;
+    box-shadow: none !important;
+    cursor: pointer;
+}
+
+.form-select.stat-popover-select.is-active {
+    background-color: #eff6ff !important;
+    border-color: rgba(37, 99, 235, 0.32) !important;
+    color: #2563eb !important;
+    font-weight: 600 !important;
+}
+
+.stat-active-month-reset {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #2563eb;
+    background-color: #dbeafe;
+    border-radius: 0.25rem;
+    padding: 0.0625rem 0.5rem;
+    text-decoration: none;
+    transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-active-month-reset:hover {
+    background-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+/* Kartu KPI: Hanya Label, Angka Tabular Besar & Konteks (Tanpa Ikon Dekoratif) */
+.stat-kpi-card .card-body {
+    padding: 1.25rem !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.25rem;
+}
+
+.stat-kpi-link {
+    text-decoration: none;
+    transition: border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-kpi-link:hover {
+    background-color: #f8fafc;
+    border-color: rgba(37, 99, 235, 0.28) !important;
+}
+
+.stat-kpi-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #4b5565;
+    line-height: 1.25rem;
+}
+
+.stat-kpi-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #111827;
+    letter-spacing: -0.02em;
+    margin: 0.25rem 0;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-kpi-unit {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #6b7487;
+    margin-left: 0.125rem;
+}
+
+.stat-kpi-hint {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #6b7487;
+    line-height: 1rem;
+}
+
+.text-accent-primary {
+    color: #2563eb !important;
+}
+
+.text-semantic-danger {
+    color: #dc2626 !important;
+}
+
+.stat-kpi-hint-warn {
+    color: #b45309;
+    font-weight: 500;
+}
+
+.stat-kpi-hint-danger {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+/* Warna solid yang diredam (toned semantic) untuk legend, stacked bar & progress */
+.bg-stat-warning { background-color: #d97706; }
+.bg-stat-info { background-color: #2563eb; }
+.bg-stat-danger { background-color: #dc2626; }
+.bg-stat-success { background-color: #16a34a; }
 .bg-stat-secondary { background-color: #94a3b8; }
-.bg-primary-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-.bg-soft-primary-strong { background-color: #93c5fd; }
+.bg-primary-gradient { background-color: #2563eb; }
+.bg-soft-primary-strong { background-color: #cbd5e1; }
 
 .stat-legend {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #64748b;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4b5565;
 }
 
 .stat-legend-dot {
-    width: 0.6rem;
-    height: 0.6rem;
+    width: 0.5rem;
+    height: 0.5rem;
     border-radius: 9999px;
     display: inline-block;
     flex-shrink: 0;
@@ -938,8 +1262,8 @@ td.text-center > .badge {
 
 /* Grafik batang vertikal (Tablet & Desktop >= 576px) */
 .stat-chart-wrapper {
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 0.6rem;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.75rem;
     align-items: stretch;
 }
 
@@ -947,10 +1271,11 @@ td.text-center > .badge {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 1.85rem 0.25rem 1.55rem 0;
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: #94a3b8;
+    padding: 1.5rem 0 1.5rem 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    color: #6b7487;
     text-align: right;
     line-height: 1;
     user-select: none;
@@ -958,69 +1283,105 @@ td.text-center > .badge {
 
 .stat-bar-chart {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0.65rem;
+    grid-template-columns: repeat(var(--chart-cols, 6), minmax(0, 1fr));
+    gap: 0.5rem;
     align-items: end;
+}
+
+.stat-bar-chart.is-6-cols {
+    gap: 0.75rem;
 }
 
 .stat-bar-col {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
     min-width: 0;
+    padding: 0.25rem 0.125rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-bar-col-interactive:hover {
+    background-color: #f8fafc;
+}
+
+.stat-bar-col.is-selected {
+    background-color: #eff6ff;
+    outline: 1px solid rgba(37, 99, 235, 0.28);
 }
 
 .stat-bar-values {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.15rem;
-    font-size: 0.68rem;
-    font-weight: 700;
-    line-height: 1.2;
+    gap: 0.125rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1rem;
     white-space: nowrap;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 9999px;
-    padding: 0.15rem 0.45rem;
+}
+
+.stat-bar-chart.is-12-cols .stat-bar-values {
+    font-size: 0.6875rem;
+    gap: 0.125rem;
 }
 
 .stat-val-req {
-    color: #475569;
+    color: #6b7487;
 }
 
 .stat-val-sep {
     color: #cbd5e1;
-    font-weight: 500;
+    margin: 0 0.0625rem;
 }
 
 .stat-val-app {
+    color: #111827;
+    font-weight: 600;
+}
+
+.stat-bar-col.is-current .stat-val-app,
+.stat-bar-col.is-current .stat-bar-label,
+.stat-bar-col.is-selected .stat-val-app,
+.stat-bar-col.is-selected .stat-bar-label {
     color: #2563eb;
+    font-weight: 600;
 }
 
 .stat-bar-track {
-    height: 11.5rem;
+    height: 16rem;
     width: 100%;
-    max-width: 4.25rem;
+    max-width: 4.5rem;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     gap: 0.25rem;
-    padding: 0 0.2rem;
-    border-bottom: 1px solid #cbd5e1;
+    padding: 0 0.25rem;
+    border-bottom: 1px solid rgba(17, 24, 39, 0.12);
     background-image:
-        linear-gradient(to bottom, #f1f5f9 1px, transparent 1px),
-        linear-gradient(to top, transparent calc(50% - 0.5px), #f1f5f9 calc(50% - 0.5px), #f1f5f9 calc(50% + 0.5px), transparent calc(50% + 0.5px));
+        linear-gradient(to bottom, rgba(17, 24, 39, 0.06) 1px, transparent 1px),
+        linear-gradient(to top, transparent calc(50% - 0.5px), rgba(17, 24, 39, 0.06) calc(50% - 0.5px), rgba(17, 24, 39, 0.06) calc(50% + 0.5px), transparent calc(50% + 0.5px));
     background-repeat: no-repeat;
+}
+
+.stat-bar-chart.is-12-cols .stat-bar-track {
+    gap: 0.25rem;
+    padding: 0 0.25rem;
 }
 
 .stat-bar {
     flex: 1 1 0;
-    max-width: 1.35rem;
+    max-width: 1.25rem;
     min-height: 4px;
-    border-radius: 0.4rem 0.4rem 0.12rem 0.12rem;
-    transition: height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.stat-bar-chart.is-12-cols .stat-bar {
+    max-width: 1.125rem;
 }
 
 .stat-bar.is-zero {
@@ -1030,82 +1391,84 @@ td.text-center > .badge {
 }
 
 .stat-bar-requests {
-    background-color: #93c5fd;
+    background-color: #cbd5e1;
 }
 
 .stat-bar-approved {
-    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22);
+    background-color: #2563eb;
 }
 
 .stat-bar-label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #6b7487;
     text-transform: capitalize;
     white-space: nowrap;
+    line-height: 1rem;
 }
 
-/* Grafik perbandingan horizontal per bulan (Mobile < 576px) */
+.stat-bar-chart.is-12-cols .stat-bar-label {
+    font-size: 0.6875rem;
+}
+
+/* Grafik perbandingan horizontal per bulan (Mobile) */
 .stat-trend-mobile {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.5rem;
 }
 
 .stat-trend-mobile-item {
-    padding: 0.65rem 0.75rem;
+    display: block;
+    padding: 0.75rem;
     background-color: #f8fafc;
-    border: 1px solid #eef2f7;
-    border-radius: 0.75rem;
+    border: 1px solid rgba(17, 24, 39, 0.06);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-trend-mobile-link:hover {
+    background-color: #eceff4;
+}
+
+.stat-trend-mobile-item.is-selected {
+    background-color: #eff6ff;
+    border-color: rgba(37, 99, 235, 0.35);
 }
 
 .stat-trend-mobile-month {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #1e293b;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #111827;
     text-transform: capitalize;
+}
+
+.stat-trend-mobile-item.is-selected .stat-trend-mobile-month {
+    color: #2563eb;
+    font-weight: 600;
 }
 
 .stat-trend-mobile-counts {
     display: inline-flex;
     align-items: center;
-    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 0.25rem;
-}
-
-.stat-trend-pill {
-    font-size: 0.66rem;
-    font-weight: 700;
-    padding: 0.15rem 0.45rem;
-    border-radius: 9999px;
-    line-height: 1.2;
-    white-space: nowrap;
-}
-
-.stat-trend-pill-req {
-    background-color: #e0f2fe;
-    color: #0369a1;
-}
-
-.stat-trend-pill-app {
-    background-color: #dbeafe;
-    color: #1d4ed8;
+    font-size: 0.75rem;
 }
 
 .stat-trend-mobile-bars {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
-    margin-top: 0.35rem;
+    gap: 0.25rem;
+    margin-top: 0.375rem;
 }
 
 .stat-trend-mobile-track {
-    height: 0.42rem;
+    height: 0.375rem;
     width: 100%;
     background-color: #e2e8f0;
-    border-radius: 9999px;
+    border-radius: 0.25rem;
     overflow: hidden;
 }
 
@@ -1114,7 +1477,6 @@ td.text-center > .badge {
     height: 100%;
     min-width: 4px;
     border-radius: inherit;
-    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .stat-trend-fill.is-zero {
@@ -1122,20 +1484,249 @@ td.text-center > .badge {
     width: 0 !important;
 }
 
+/* Rincian Per Minggu pada Bulan Terpilih (Drilldown Strip) */
+.stat-month-drilldown {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.stat-drilldown-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.stat-drilldown-subtitle {
+    font-size: 0.75rem;
+    color: #6b7487;
+}
+
+.stat-week-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: 0.5rem;
+}
+
+.stat-week-card {
+    padding: 0.625rem 0.75rem;
+    background-color: #f8fafc;
+    border: 1px solid rgba(17, 24, 39, 0.06);
+    border-radius: 0.5rem;
+}
+
+.stat-week-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.stat-week-dates {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.6875rem;
+    color: #6b7487;
+}
+
+.stat-week-figures {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.stat-week-approved {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.stat-week-req {
+    font-size: 0.6875rem;
+    color: #6b7487;
+}
+
+/* Grafik Sunburst 2-Cincin (Distribusi Status & Kondisi Barang Inventaris) */
+.stat-sunburst-layout {
+    display: grid;
+    grid-template-columns: 11.25rem minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.stat-sunburst-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.stat-sunburst-svg-wrap {
+    position: relative;
+    width: 11.25rem;
+    height: 11.25rem;
+    flex-shrink: 0;
+}
+
+.stat-sunburst-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+.stat-sunburst-link {
+    cursor: pointer;
+    outline: none;
+}
+
+.stat-sunburst-arc {
+    stroke: #ffffff;
+    stroke-width: 1.5px;
+    stroke-linejoin: round;
+    transition: opacity 0.15s cubic-bezier(0.22, 1, 0.36, 1), filter 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-sunburst-arc.is-hovered {
+    opacity: 1;
+    filter: brightness(1.04);
+}
+
+.stat-sunburst-arc.is-dimmed {
+    opacity: 0.32;
+}
+
+.stat-sunburst-center {
+    position: absolute;
+    inset: 22%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none;
+    padding: 0.25rem;
+}
+
+.stat-sunburst-center-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.stat-sunburst-center-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #6b7487;
+    line-height: 1.15;
+    margin-top: 0.125rem;
+    max-width: 5.25rem;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+.stat-sunburst-center-pct {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #2563eb;
+    line-height: 1.15;
+    margin-top: 0.0625rem;
+}
+
+.stat-sunburst-legend-wrap {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.stat-sunburst-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.stat-sunburst-group-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #f8fafc;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    color: #4b5565;
+    text-decoration: none;
+    transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-sunburst-group-pill:hover,
+.stat-sunburst-group-pill.is-active {
+    background-color: #eff6ff;
+    border-color: rgba(37, 99, 235, 0.3);
+    color: #111827;
+}
+
+.stat-sunburst-group-name {
+    font-weight: 500;
+}
+
+.stat-sunburst-group-val {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.stat-sunburst-legend-list li {
+    padding: 0.375rem 0;
+}
+
+.stat-legend-link.is-highlighted {
+    color: #2563eb;
+}
+
+.stat-figure-unit {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #4b5565;
+}
+
+@media (max-width: 575.98px) {
+    .stat-sunburst-layout {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 1rem;
+    }
+
+    .stat-sunburst-legend-wrap {
+        width: 100%;
+    }
+}
+
 /* Stacked bar distribusi status */
 .stat-stacked-bar {
     display: flex;
-    height: 0.75rem;
-    border-radius: 9999px;
+    height: 0.5rem;
+    border-radius: 0.25rem;
     overflow: hidden;
-    background-color: #f1f5f9;
+    background-color: #eceff4;
     gap: 2px;
 }
 
 .stat-stacked-segment {
     display: block;
     height: 100%;
-    min-width: 0.45rem;
+    min-width: 0.5rem;
+    transition: opacity 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stat-stacked-segment:hover {
+    opacity: 0.82;
 }
 
 .stat-legend-list {
@@ -1148,12 +1739,11 @@ td.text-center > .badge {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
     gap: 0.5rem;
-    padding: 0.55rem 0;
-    font-size: 0.8rem;
-    color: #475569;
-    border-top: 1px solid #f1f5f9;
+    padding: 0.5rem 0;
+    font-size: 0.8125rem;
+    color: #4b5565;
+    border-top: 1px solid rgba(17, 24, 39, 0.06);
 }
 
 .stat-legend-list li:first-child {
@@ -1164,41 +1754,49 @@ td.text-center > .badge {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
     gap: 0.5rem;
     width: 100%;
     color: inherit;
     text-decoration: none;
-    border-radius: 0.45rem;
-    transition: color 0.15s ease;
+    transition: color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .stat-legend-link:hover {
     color: #2563eb;
 }
 
+.stat-figure-inline {
+    font-weight: 600;
+    color: #111827;
+}
+
+.stat-figure-muted {
+    font-weight: 400;
+    color: #6b7487;
+}
+
 .stat-drill-link {
     color: inherit;
     text-decoration: none;
-    transition: color 0.15s ease;
+    transition: color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .stat-drill-link:hover {
     color: #2563eb !important;
 }
 
-/* Daftar peringkat */
+/* Daftar peringkat (Tanpa gradien emas/perak/perunggu) */
 .stat-rank-item {
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
-    padding: 0.7rem 0;
-    border-top: 1px solid #f1f5f9;
+    padding: 0.75rem 0;
+    border-top: 1px solid rgba(17, 24, 39, 0.06);
 }
 
 .stat-rank-item:first-child {
     border-top: 0;
-    padding-top: 0.2rem;
+    padding-top: 0.25rem;
 }
 
 .stat-rank-body {
@@ -1208,40 +1806,48 @@ td.text-center > .badge {
 
 .stat-rank-badge,
 .stat-rank-avatar {
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 0.65rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-size: 0.8rem;
-    font-weight: 800;
-    background-color: #f1f5f9;
-    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #eceff4;
+    color: #4b5565;
+    font-variant-numeric: tabular-nums;
 }
 
-.stat-rank-badge.rank-1 { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #ffffff; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
-.stat-rank-badge.rank-2 { background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%); color: #ffffff; }
-.stat-rank-badge.rank-3 { background: linear-gradient(135deg, #fdba74 0%, #ea580c 100%); color: #ffffff; }
+.stat-rank-badge.rank-1,
+.stat-rank-avatar.is-top {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
 
 .stat-rank-avatar {
     border-radius: 9999px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: #ffffff;
+}
+
+.stat-rank-num {
+    color: #6b7487;
+    font-weight: 400;
 }
 
 .stat-rank-title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #1e293b;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
     margin: 0;
-    line-height: 1.3;
+    line-height: 1.35;
     word-break: break-word;
 }
 
 .stat-rank-title a {
     color: inherit;
+    text-decoration: none;
+    transition: color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .stat-rank-title a:hover {
@@ -1249,44 +1855,55 @@ td.text-center > .badge {
 }
 
 .stat-rank-meta {
-    font-size: 0.72rem;
-    color: #64748b;
+    font-size: 0.75rem;
+    color: #6b7487;
+    line-height: 1.25rem;
 }
 
 .stat-rank-value {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: #2563eb;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
 }
 
-/* Progress bar */
+/* Progress bar satu warna aksen tenang tanpa gradien */
 .stat-progress {
-    height: 0.4rem;
-    border-radius: 9999px;
-    background-color: #eef2f7;
+    height: 0.375rem;
+    border-radius: 0.25rem;
+    background-color: #eceff4;
     overflow: hidden;
-    margin-top: 0.45rem;
+    margin-top: 0.5rem;
 }
 
 .stat-progress > span {
     display: block;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
-    transition: width 0.5s ease;
+    background-color: #2563eb;
 }
 
-.stat-progress-info > span { background: linear-gradient(90deg, #7dd3fc 0%, #0ea5e9 100%); }
-.stat-progress-danger > span { background: linear-gradient(90deg, #fca5a5 0%, #ef4444 100%); }
-.stat-progress-success > span { background: linear-gradient(90deg, #86efac 0%, #22c55e 100%); }
-.stat-progress-warning > span { background: linear-gradient(90deg, #fcd34d 0%, #f59e0b 100%); }
+.stat-progress-info > span { background-color: #2563eb; }
+.stat-progress-danger > span { background-color: #dc2626; }
+.stat-progress-success > span { background-color: #16a34a; }
+.stat-progress-warning > span { background-color: #d97706; }
 
 .stat-simple-row {
-    padding: 0.55rem 0;
+    padding: 0.5rem 0;
 }
 
 .stat-simple-row:first-child {
-    padding-top: 0.1rem;
+    padding-top: 0.125rem;
+}
+
+.stat-row-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+.stat-row-meta {
+    font-size: 0.75rem;
+    color: #6b7487;
 }
 
 .stat-list-row {
@@ -1294,30 +1911,168 @@ td.text-center > .badge {
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.6rem 0;
-    border-top: 1px solid #f1f5f9;
+    padding: 0.625rem 0;
+    border-top: 1px solid rgba(17, 24, 39, 0.06);
 }
 
 .stat-list-row:first-child {
     border-top: 0;
-    padding-top: 0.1rem;
+    padding-top: 0.125rem;
+}
+
+.stat-quiet-count {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4b5565;
+}
+
+.stat-stock-tag {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    line-height: 1.25rem;
+}
+
+.stat-stock-tag.is-low {
+    color: #b45309;
+    background-color: #fffbeb;
+    border: 1px solid rgba(180, 83, 9, 0.18);
+}
+
+.stat-stock-tag.is-out {
+    color: #dc2626;
+    background-color: #fef2f2;
+    border: 1px solid rgba(220, 38, 38, 0.18);
+}
+
+/* Tabel bersih di Dashboard Admin (Sentence case header, hairline) */
+.stat-clean-table thead th {
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    color: #6b7487 !important;
+    border-bottom: 1px solid rgba(17, 24, 39, 0.08) !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+}
+
+.stat-clean-table tbody td {
+    border-bottom: 1px solid rgba(17, 24, 39, 0.06) !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+}
+
+.stat-clean-table tbody tr:last-child td {
+    border-bottom: 0 !important;
+}
+
+.stat-cell-primary {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+    line-height: 1.35;
+}
+
+.stat-cell-secondary {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #6b7487;
+    line-height: 1.3;
+}
+
+.stat-cell-date {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4b5565;
+}
+
+/* Feed Aktivitas Terbaru (Timeline tenang tanpa repetisi ikon lonceng) */
+.stat-activity-feed {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-activity-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    border-top: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.stat-activity-item:first-child {
+    border-top: 0;
+    padding-top: 0.25rem;
+}
+
+.stat-activity-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: #cbd5e1;
+    margin-top: 0.375rem;
+    flex-shrink: 0;
+}
+
+.stat-activity-item:first-child .stat-activity-dot {
+    background-color: #2563eb;
+}
+
+.stat-activity-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.stat-activity-desc {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #111827;
+    line-height: 1.4;
+}
+
+.stat-activity-meta {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #6b7487;
+    margin-top: 0.125rem;
 }
 
 .stat-empty {
-    font-size: 0.8rem;
-    color: #64748b;
+    font-size: 0.8125rem;
+    color: #6b7487;
     text-align: center;
     padding: 1.5rem 1rem;
     margin: 0;
     background-color: #f8fafc;
-    border: 1px dashed #cbd5e1;
-    border-radius: 0.75rem;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 0.5rem;
 }
 
 .stat-empty-success {
     color: #15803d;
     background-color: #f0fdf4;
     border-color: #bbf7d0;
+}
+
+/* Grid split 2 kolom di dalam kartu 8-kolom (Kategori & Keterlambatan) */
+.stat-split-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-split-pane {
+    min-width: 0;
+}
+
+.stat-split-pane + .stat-split-pane {
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(17, 24, 39, 0.08);
 }
 
 @media (max-width: 991.98px) {
@@ -1328,57 +2083,64 @@ td.text-center > .badge {
     }
 
     .stat-period-link {
-        padding: 0.5rem 0.65rem;
+        padding: 0.5rem 0.5rem;
+    }
+
+    .stat-bar-track {
+        height: 12.5rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .stat-split-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .stat-split-pane + .stat-split-pane {
+        padding-left: 0;
+        padding-top: 1.25rem;
+        border-left: 0;
+        border-top: 1px solid rgba(17, 24, 39, 0.08);
     }
 }
 
 @media (max-width: 575.98px) {
     .stat-period-switch {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.3rem;
+        gap: 0.25rem;
     }
 
     .stat-kpi-card .card-body {
-        padding: 0.75rem !important;
+        padding: 1rem !important;
     }
 
     .stat-kpi-label {
-        font-size: 0.7rem;
-    }
-
-    .stat-kpi-icon {
-        width: 1.9rem;
-        height: 1.9rem;
-        border-radius: 0.55rem;
-    }
-
-    .stat-kpi-icon svg {
-        width: 0.95rem;
-        height: 0.95rem;
+        font-size: 0.75rem;
     }
 
     .stat-kpi-value {
-        font-size: 1.25rem;
-        margin: 0.25rem 0 0.1rem;
+        font-size: 1.5rem;
+        margin: 0.125rem 0;
     }
 
     .stat-kpi-hint {
-        font-size: 0.68rem;
+        font-size: 0.6875rem;
     }
 
     .stat-rank-badge,
     .stat-rank-avatar {
-        width: 1.9rem;
-        height: 1.9rem;
+        width: 1.75rem;
+        height: 1.75rem;
         font-size: 0.75rem;
     }
 
     .stat-rank-title {
-        font-size: 0.8rem;
+        font-size: 0.8125rem;
     }
 
     .stat-rank-value {
-        font-size: 0.85rem;
+        font-size: 0.8125rem;
     }
 }
 

@@ -13,7 +13,12 @@ window.Alpine = Alpine;
     const REGION_SELECTOR = '#app-ajax-region';
     const PROGRESS_SELECTOR = '#app-ajax-progress';
     const AJAX_LINK_SELECTOR = [
+        '.stat-ajax-link',
         '.stat-period-link',
+        '.stat-chart-range-link',
+        '.stat-bar-col-interactive',
+        '.stat-trend-mobile-link',
+        '.stat-active-month-reset',
         '.filter-status-pill',
         '.active-filter-chip',
         '.active-filter-reset',
@@ -135,8 +140,14 @@ window.Alpine = Alpine;
             }
 
             const inputSnapshot = captureActiveInput(region);
+            const prevMinHeight = region.style.minHeight;
+            region.style.minHeight = `${region.offsetHeight}px`;
 
             region.innerHTML = nextRegion.innerHTML;
+
+            requestAnimationFrame(() => {
+                region.style.minHeight = prevMinHeight;
+            });
 
             if (doc.title) {
                 document.title = doc.title;
@@ -182,6 +193,27 @@ window.Alpine = Alpine;
 
         return url.toString();
     }
+
+    // Intercept perubahan select filter [data-ajax-select] di dalam region dinamis
+    document.addEventListener('change', (event) => {
+        const select = event.target;
+        if (!(select instanceof HTMLSelectElement) || !select.hasAttribute('data-ajax-select')) {
+            return;
+        }
+
+        const form = select.form;
+        if (!form || (form.method || 'GET').toUpperCase() !== 'GET') {
+            return;
+        }
+
+        const region = document.querySelector(REGION_SELECTOR);
+        if (!region || !region.contains(select)) {
+            return;
+        }
+
+        const targetUrl = buildFormGetUrl(form);
+        navigateAjax(targetUrl, { pushState: true, scrollToTop: false });
+    });
 
     // Intercept submit form GET di dalam region dinamis
     document.addEventListener('submit', (event) => {
